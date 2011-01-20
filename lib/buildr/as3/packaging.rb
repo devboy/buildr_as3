@@ -23,7 +23,7 @@ require 'buildr/packaging'
 require "ftools"
 module Buildr
   module Packaging
-    module Actionscript
+    module AS3
       class SwcTask < Rake::FileTask
         include Extension
         attr_writer :target_swc, :src_swc
@@ -97,5 +97,5 @@ module Buildr
   end
 end
 class Buildr::Project
-  include Buildr::Packaging::Actionscript
+  include Buildr::Packaging::AS3
 end

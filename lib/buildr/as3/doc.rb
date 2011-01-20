@@ -36,6 +36,7 @@ module Buildr
         cmd_args << "-classpath" << "#{flex_sdk.home}/lib/xalan.jar"
         cmd_args << "-classpath" << flex_sdk.asdoc_jar
         cmd_args << "flex2.tools.ASDoc"
+        cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
         cmd_args << "-load-config" << flex_sdk.flex_config
         cmd_args << "-output" << output
         cmd_args << "-source-path" << sources.join(" ")
