@@ -1,25 +1,49 @@
 require 'rubygems'
-require 'rake/gempackagetask'
+require 'bundler'
+begin
+  Bundler.setup(:default, :development)
+rescue Bundler::BundlerError => e
+  $stderr.puts e.message
+  $stderr.puts "Run `bundle install` to install missing gems"
+  exit e.status_code
+end
+require 'rake'
 
-spec = Gem::Specification.new do |s|
-    s.platform      =   Gem::Platform::RUBY
-    s.name          =   "buildr-as3"
-    s.version       =   "0.1.2"
-    s.author        =   "Dominic Graefen"
-    s.homepage      =   "http://devboy.org"
-    s.email         =   "dominic @nospam@ devboy.org"
-    s.summary       =   "Buildr extension to allow ActionScript3/Flex development."
-    s.description   =   "Buildr extension to allow ActionScript3/Flex development."
-    s.files         =   FileList['{lib}/**/*'].to_a
-    s.require_path  =   "lib"
-    s.add_dependency("buildr",">=1.4.4")
-    s.has_rdoc  =   false
+require 'jeweler'
+Jeweler::Tasks.new do |gem|
+  gem.name = "buildr-as3"
+  gem.homepage = "http://github.com/devboy/buildr_as3"
+  gem.license = "MIT"
+  gem.summary = %Q{Buildr extension to allow ActionScript3/Flex development.}
+  gem.description = %Q{ÒBuild like you codeÓ Ð now supporting ActionScript 3 & Flex}
+  gem.email = "dominic @nospam@ devboy.org"
+  gem.authors = ["Dominic Graefen"]
+  gem.add_runtime_dependency("buildr",">=1.4.4")
+end
+Jeweler::RubygemsDotOrgTasks.new
+
+require 'rake/testtask'
+Rake::TestTask.new(:test) do |test|
+  test.libs << 'lib' << 'test'
+  test.pattern = 'test/**/test_*.rb'
+  test.verbose = true
 end
 
-Rake::GemPackageTask.new(spec) do |pkg|
-    pkg.need_tar = true
+require 'rcov/rcovtask'
+Rcov::RcovTask.new do |test|
+  test.libs << 'test'
+  test.pattern = 'test/**/test_*.rb'
+  test.verbose = true
 end
 
-task :default => "pkg/#{spec.name}-#{spec.version}.gem" do
-    puts "generated latest version"
+task :default => :test
+
+require 'rake/rdoctask'
+Rake::RDocTask.new do |rdoc|
+  version = File.exist?('VERSION') ? File.read('VERSION') : ""
+
+  rdoc.rdoc_dir = 'rdoc'
+  rdoc.title = "buildr_as3 #{version}"
+  rdoc.rdoc_files.include('README*')
+  rdoc.rdoc_files.include('lib/**/*.rb')
 end
