@@ -14,8 +14,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "buildr-as3"
   gem.homepage = "http://github.com/devboy/buildr_as3"
   gem.license = "MIT"
-  gem.summary = %Q{Buildr extension to allow ActionScript3/Flex development.}
-  gem.description = %Q{Build like you code Ð now supporting ActionScript 3 & Flex}
+  gem.summary = "Buildr extension to allow ActionScript3/Flex development."
+  gem.description = "Build like you code Ð now supporting ActionScript 3 & Flex"
   gem.email = "dominic @nospam@ devboy.org"
   gem.authors = ["Dominic Graefen"]
   gem.add_runtime_dependency("buildr",">=1.4.4")
