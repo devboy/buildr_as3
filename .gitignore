@@ -1,6 +1,8 @@
 # intellij files
-/idea
+.idea
 buildr_as3.iml
+
+
 
 # rcov generated
 coverage
@@ -17,6 +19,7 @@ doc
 
 # jeweler generated
 pkg
+Gemfile.lock
 
 # Have editor/IDE/OS specific files you need to ignore? Consider using a global gitignore: 
 #
