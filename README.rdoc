@@ -1,6 +1,6 @@
 = buildr_as3
 
-Description goes here.
+“build like you code” – now supporting ActionScript 3 & Flex
 
 == Contributing to buildr_as3
  
