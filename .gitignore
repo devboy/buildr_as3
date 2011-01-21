@@ -1,3 +1,7 @@
+# intellij files
+/idea
+buildr_as3.iml
+
 # rcov generated
 coverage
 
