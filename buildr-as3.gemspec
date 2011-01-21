@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{buildr-as3}
-  s.version = "0.1.2"
+  s.version = "0.1.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Dominic Graefen"]
@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
     "README.textile",
     "Rakefile",
     "VERSION",
+    "buildr-as3.gemspec",
     "lib/buildr/as3.rb",
     "lib/buildr/as3/compiler.rb",
     "lib/buildr/as3/doc.rb",
