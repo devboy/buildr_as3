@@ -14,15 +14,13 @@ Gem::Specification.new do |s|
   s.email = %q{dominic @nospam@ devboy.org}
   s.extra_rdoc_files = [
     "LICENSE.txt",
-    "README.rdoc",
-    "README.textile"
+    "README.rdoc"
   ]
   s.files = [
     ".document",
     "Gemfile",
     "LICENSE.txt",
     "README.rdoc",
-    "README.textile",
     "Rakefile",
     "VERSION",
     "buildr-as3.gemspec",
