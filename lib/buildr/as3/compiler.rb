@@ -22,6 +22,25 @@
 #TODO: Refactor compiler classes, right now everything is copy&paste
 module Buildr
   module Compiler
+    module BuildInfo
+      def write_build_info_class( source_path, project )
+        file = File.join source_path, "org/devboy/buildras3/Build.as"
+        puts "Write Build Info Class:"+file
+        file_content =  "/**
+ * Created by buildr-as3
+ */
+package org.devboy.buildras3 {
+public class Build
+{
+    public static const PROJECT_NAME : String = '#{project.to_s}';
+    public static const PROJECT_GROUP : String = '#{project.group.to_s}';
+    public static const PROJECT_VERSION : String = '#{project.version.to_s}';
+    public static const BUILD_TIME : String = '#{Time.now.to_s}';
+}
+}"
+        File.open(file, 'w') {|f| f.write(file_content) }
+      end
+    end
     module NeededTools
       def is_output_outdated?(output,file_to_check)
         return true unless File.exists? output
@@ -29,6 +48,9 @@ module Buildr
       end
 
       def older(a,b) # a older than b
+#        puts "OLDER"
+#        puts a, timestamp_from_file(a)
+#        puts b, timestamp_from_file(b)
         timestamp_from_file(a) < timestamp_from_file(b)
       end
 
@@ -40,17 +62,23 @@ module Buildr
         file_mtimes = []
         dirs = Dir.new(dir).select { |file| file!= '.' && file!='..' && File.directory?(dir+"/"+file)==true }
         dirs = dirs.collect { |subdir| dir+"/"+subdir }
-        dirs.each do |subdir|
-          file_mtimes << get_last_modified(subdir)
-        end
+        dirs.each { |subdir| file_mtimes << get_last_modified(subdir) }
         files = Dir.new(dir).select { |file| file!= '.' && file!='..' && File.directory?(dir+"/"+file)==false }
         files = files.collect { |file| dir+'/'+file }
-        files.each do |file|
+        files.each { |file|
           file_mtimes << File.mtime(file)
-        end
+#          puts "","checkFile:"
+#          puts File.mtime(file).to_s
+#          puts file.to_s, ""
+        }
         file_mtimes.sort!
         file_mtimes.reverse!
         file_mtimes.length > 0 ? file_mtimes.first : Time.at(0)
+      end
+
+      def applies_to?(project, task) #:nodoc:
+          trace "applies_to?: false"
+          false
       end
     end
     class Mxmlc < Base
@@ -59,9 +87,11 @@ module Buildr
               :target => "bin", :target_ext => "swf",
               :packaging => :swf
 
+      attr_reader :project
 
       def initialize(project, options)
         super
+        @project = project
       end
 
 
@@ -71,17 +101,26 @@ module Buildr
         mainfile = File.basename(main, File.extname(main))
         output =  (options[:output] || "#{target}/#{mainfile}.swf")
         sources.each do |source|
-          return true if is_output_outdated?(output,source)
+          if is_output_outdated?(output, source)
+#            puts "checkSource:" + source
+            puts "Recompile needed: Sources are newer than target"
+            return true
+          end
         end
         dependencies.each do |dependency|
-          return true if is_output_outdated?(output,dependency)
+          if is_output_outdated?(output, dependency)
+            puts "Recompile needed: Dependencies are newer than target"
+            return true
+          end
         end
+        puts "Recompile not needed"
         false
       end
 
 
-
+      include BuildInfo
       def compile(sources, target, dependencies)
+        write_build_info_class sources[0], project
         flex_sdk = options[:flexsdk]
         main = options[:main]
         mainfile = File.basename(main, File.extname(main))
@@ -127,11 +166,18 @@ module Buildr
         mainfile = File.basename(main, File.extname(main))
         output =  (options[:output] || "#{target}/#{mainfile}.swf")
         sources.each do |source|
-          return true if is_output_outdated?(output,source)
+          if is_output_outdated?(output, source)
+            puts "Recompile needed: Sources are newer than target"
+            return true
+          end
         end
         dependencies.each do |dependency|
-          return true if is_output_outdated?(output,dependency)
+          if is_output_outdated?(output, dependency)
+            puts "Recompile needed: Dependencies are newer than target"
+            return true
+          end
         end
+        puts "Recompile not needed"
         false
       end
 
@@ -182,10 +228,12 @@ module Buildr
         dependencies.each do |dependency|
           return true if is_output_outdated?(output,dependency)
         end
+        puts "Recompile not needed"
         false
       end
 
       def compile(sources, target, dependencies)
+        write_build_info_class sources[0], project
         flex_sdk = options[:flexsdk]
         output =  (options[:output] || "#{target}/#{project.to_s}.swc")
         cmd_args = []
@@ -223,10 +271,16 @@ module Buildr
       def needed?(sources, target, dependencies)
         output =  (options[:output] || "#{target}/#{project.to_s}.swc")
         sources.each do |source|
-          return true if is_output_outdated?(output,source)
+          if is_output_outdated?(output, source)
+            puts "Recompile needed: Sources are newer than target"
+            return true
+          end
         end
         dependencies.each do |dependency|
-          return true if is_output_outdated?(output,dependency)
+          if is_output_outdated?(output, dependency)
+            puts "Recompile needed: Dependencies are newer than target"
+            return true
+          end
         end
         false
       end
