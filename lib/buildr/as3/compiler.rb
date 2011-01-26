@@ -221,7 +221,7 @@ public class Build
       end
       include NeededTools
       def needed?(sources, target, dependencies)
-        output =  (options[:output] || "#{target}/#{project.to_s}.swc")
+        output =  (options[:output] || "#{target}/#{project.name.gsub(":", "-")}.swc")
         sources.each do |source|
           return true if is_output_outdated?(output,source)
         end
@@ -235,7 +235,7 @@ public class Build
       def compile(sources, target, dependencies)
 #        write_build_info_class sources[0], project
         flex_sdk = options[:flexsdk]
-        output =  (options[:output] || "#{target}/#{project.to_s}.swc")
+        output =  (options[:output] || "#{target}/#{project.name.gsub(":", "-")}.swc")
         cmd_args = []
         cmd_args << "-jar" << flex_sdk.compc_jar
         cmd_args << "-output" << output
@@ -269,7 +269,7 @@ public class Build
       end
       include NeededTools
       def needed?(sources, target, dependencies)
-        output =  (options[:output] || "#{target}/#{project.to_s}.swc")
+        output =  (options[:output] || "#{target}/#{project.name.gsub(":", "-")}.swc")
         sources.each do |source|
           if is_output_outdated?(output, source)
             puts "Recompile needed: Sources are newer than target"
@@ -350,7 +350,7 @@ public class Build
       def compile(sources, target, dependencies)
         alchemy_tk = options[:alchemytk]
         flex_sdk = alchemy_tk.flex_sdk
-        output =  (options[:output] || "#{target}/#{project.to_s}.swc")
+        output =  (options[:output] || "#{target}/#{project.name.gsub(":", "-")}.swc")
 
         # gcc stringecho.c -O3 -Wall -swc -o stringecho.swc
         cmd_args = []
@@ -375,7 +375,6 @@ public class Build
           ENV["PATH"] = "#{ENV["PATH"]}:#{flex_sdk.bin}"
           project_dir = Dir.getwd
           Dir.chdir File.dirname options[:main]
-          puts "working-dir: ", Dir.getwd
           system(cmd_args.join(" "))
           File.copy( File.basename(output), output)
           Dir.chdir project_dir

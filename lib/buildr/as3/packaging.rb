@@ -81,7 +81,7 @@ module Buildr
       protected
       def package_as_swc(file_name)
         SwcTask.define_task(file_name).tap do |swc|
-          swc.src_swc = (compile.options[:output] || "#{compile.target}/#{project.to_s}.swc")
+          swc.src_swc = (compile.options[:output] || "#{compile.target}/#{project.name.gsub(":", "-")}.swc")
           swc.target_swc = file_name
         end
       end
