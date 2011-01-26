@@ -120,7 +120,7 @@ public class Build
 
       include BuildInfo
       def compile(sources, target, dependencies)
-        write_build_info_class sources[0], project
+#        write_build_info_class sources[0], project
         flex_sdk = options[:flexsdk]
         main = options[:main]
         mainfile = File.basename(main, File.extname(main))
@@ -233,7 +233,7 @@ public class Build
       end
 
       def compile(sources, target, dependencies)
-        write_build_info_class sources[0], project
+#        write_build_info_class sources[0], project
         flex_sdk = options[:flexsdk]
         output =  (options[:output] || "#{target}/#{project.to_s}.swc")
         cmd_args = []
@@ -309,9 +309,83 @@ public class Build
         end
       end
     end
+    class AlcGcc < Base
+      specify :language => :c,
+              :sources => :c, :source_ext => :c,
+              :target => "bin", :target_ext => "swc",
+              :packaging => :swc
+
+      attr_reader :project
+
+      def initialize(project, options)
+        super
+        @project = project
+      end
+
+
+      include NeededTools
+      def needed?(sources, target, dependencies)
+        true
+#        main = options[:main]
+#        mainfile = File.basename(main, File.extname(main))
+#        output =  (options[:output] || "#{target}/#{mainfile}.swf")
+#        sources.each do |source|
+#          if is_output_outdated?(output, source)
+#            puts "Recompile needed: Sources are newer than target"
+#            return true
+#          end
+#        end
+#        dependencies.each do |dependency|
+#          if is_output_outdated?(output, dependency)
+#            puts "Recompile needed: Dependencies are newer than target"
+#            return true
+#          end
+#        end
+#        puts "Recompile not needed"
+#        false
+      end
+
+
+      include BuildInfo
+      def compile(sources, target, dependencies)
+        alchemy_tk = options[:alchemytk]
+        flex_sdk = alchemy_tk.flex_sdk
+        output =  (options[:output] || "#{target}/#{project.to_s}.swc")
+
+        # gcc stringecho.c -O3 -Wall -swc -o stringecho.swc
+        cmd_args = []
+        cmd_args << "gcc"
+        cmd_args << File.basename(options[:main])
+        cmd_args << "-O3 -Wall -swc"
+        cmd_args << "-o #{File.basename output}"
+
+        reserved = [:flexsdk,:main,:alchemytk]
+        options.to_hash.reject { |key, value| reserved.include?(key) }.
+            each do |key, value|
+              cmd_args << "-#{key}=#{value}"
+        end
+
+        unless Buildr.application.options.dryrun
+          ENV["ALCHEMY_HOME"]= alchemy_tk.home
+          ENV["ALCHEMY_VER"] = "0.4a"
+          ENV["PATH"] = "#{alchemy_tk.bin}:#{ENV["PATH"]}"
+          ENV["ASC"]="#{alchemy_tk.home}/bin/asc.jar"
+          ENV["SWFBRIDGE"]="#{alchemy_tk.home}/bin/swfbridge"
+          ENV["PATH"] = "#{alchemy_tk.achacks}:#{ENV["PATH"]}"
+          ENV["PATH"] = "#{ENV["PATH"]}:#{flex_sdk.bin}"
+          project_dir = Dir.getwd
+          Dir.chdir File.dirname options[:main]
+          puts "working-dir: ", Dir.getwd
+          system(cmd_args.join(" "))
+          File.copy( File.basename(output), output)
+          Dir.chdir project_dir
+        end
+      end
+    end
   end
 end
 Buildr::Compiler.compilers << Buildr::Compiler::Mxmlc
 Buildr::Compiler.compilers << Buildr::Compiler::Compc
 Buildr::Compiler.compilers << Buildr::Compiler::AirMxmlc
 Buildr::Compiler.compilers << Buildr::Compiler::AirCompc
+Buildr::Compiler.compilers << Buildr::Compiler::AlcGcc
