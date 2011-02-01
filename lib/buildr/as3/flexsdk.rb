@@ -21,45 +21,47 @@
 #
 module Buildr
   module AS3
-    class Flex4SDK
-      
-      attr_reader :home, :mxmlc_jar, :compc_jar, :asdoc_jar, :fcsh_jar, :flex_config,
-                  :asdoc_templates, :default_options, :air_config, :bin
-      
-      attr_writer :flex_config, :air_config, :asdoc_templates
-      
-      def initialize(sdk_opts = {})
+    module Flex
+      class FlexSDK
 
-        @default_options = {}
+        attr_reader :home, :mxmlc_jar, :compc_jar, :asdoc_jar, :fcsh_jar, :flex_config,
+                    :asdoc_templates, :default_options, :air_config, :bin
 
-        generate_url(sdk_opts)
-                
-        sdk_zip = Buildr::artifact("com.adobe.flex:sdk:zip:#{sdk_opts[:sdk_version]}").from(Buildr::download(sdk_opts[:sdk_url]))
-        sdk_zip.invoke unless File.exists? sdk_zip.to_s
-        sdk_dir = File.join(File.dirname(sdk_zip.to_s), "sdk-#{sdk_opts[:sdk_version]}")
+        attr_writer :flex_config, :air_config, :asdoc_templates
 
-        unless File.exists? sdk_dir
-          puts "Unzipping FlexSDK, this may take a while."
-          Buildr::unzip("#{sdk_dir}"=>sdk_zip.to_s).target.invoke
+        def initialize(sdk_opts = {})
+
+          @default_options = {}
+
+          generate_url(sdk_opts)
+
+          sdk_zip = Buildr::artifact("com.adobe.flex:sdk:zip:#{sdk_opts[:sdk_version]}").from(Buildr::download(sdk_opts[:sdk_url]))
+          sdk_zip.invoke unless File.exists? sdk_zip.to_s
+          sdk_dir = File.join(File.dirname(sdk_zip.to_s), "sdk-#{sdk_opts[:sdk_version]}")
+
+          unless File.exists? sdk_dir
+            puts "Unzipping FlexSDK, this may take a while."
+            Buildr::unzip("#{sdk_dir}"=>sdk_zip.to_s).target.invoke
+          end
+
+          @home = sdk_dir
+          @mxmlc_jar = "#{@home}/lib/mxmlc.jar"
+          @compc_jar = "#{@home}/lib/compc.jar"
+          @asdoc_jar = "#{@home}/lib/asdoc.jar"
+          @asdoc_templates = "#{@home}/asdoc/templates"
+          @fcsh_jar = "#{@home}/lib/fcsh.jar"
+          @flex_config = "#{@home}/frameworks/flex-config.xml"
+          @air_config = "#{@home}/frameworks/air-config.xml"
+          @bin = "#{@home}/bin"
         end
 
-        @home = sdk_dir
-        @mxmlc_jar = "#{@home}/lib/mxmlc.jar"
-        @compc_jar = "#{@home}/lib/compc.jar"
-        @asdoc_jar = "#{@home}/lib/asdoc.jar"
-        @asdoc_templates = "#{@home}/asdoc/templates"
-        @fcsh_jar = "#{@home}/lib/fcsh.jar"
-        @flex_config = "#{@home}/frameworks/flex-config.xml"
-        @air_config = "#{@home}/frameworks/air-config.xml"
-        @bin = "#{@home}/bin"
-      end
+        protected
 
-      protected
+        def generate_url(opts = {})
+          opts[:sdk_url] ||= "http://fpdownload.adobe.com/pub/flex/sdk/builds/flex#{opts[:sdk_version].split(".")[0]}/flex_sdk_#{opts[:sdk_version]}.zip"
+        end
 
-      def generate_url(opts = {})
-        opts[:sdk_url] ||= "http://fpdownload.adobe.com/pub/flex/sdk/builds/flex#{opts[:sdk_version].split(".")[0]}/flex_sdk_#{opts[:sdk_version]}.zip"
       end
-      
     end
   end
 end

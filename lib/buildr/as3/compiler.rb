@@ -104,7 +104,7 @@ module Buildr
           cmd_args << "-load-config" << flex_sdk.flex_config
           cmd_args << "-source-path" << sources.join(" ")
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
-          reserved = [:flexsdk,:main]
+          reserved = [:flexsdk,:main,:apparat]
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
                 cmd_args << "-#{key}=#{value}"
@@ -148,7 +148,7 @@ module Buildr
           cmd_args << "-load-config" << flex_sdk.air_config
           cmd_args << "-source-path" << sources.join(" ")
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
-          reserved = [:flexsdk,:main]
+          reserved = [:flexsdk,:main,:apparat]
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
                 cmd_args << "-#{key}=#{value}"
@@ -186,7 +186,7 @@ module Buildr
           cmd_args << "-load-config" << flex_sdk.flex_config
           cmd_args << "-include-sources" << sources.join(" ")
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
-          reserved = [:flexsdk, :main]
+          reserved = [:flexsdk,:main,:apparat]
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
                 cmd_args << "-#{key}=#{value}"
@@ -225,7 +225,7 @@ module Buildr
           cmd_args << "+configname" << "air"
           cmd_args << "-include-sources" << sources.join(" ")
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
-          reserved = [:flexsdk, :main]
+          reserved = [:flexsdk,:main,:apparat]
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
                 cmd_args << "-#{key}=#{value}"
