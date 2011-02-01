@@ -20,7 +20,7 @@
 # THE SOFTWARE.
 #
 module Buildr
-  module Compiler
+  module AS3
     class AlchemyToolkit
       
       attr_reader :home, :achacks, :gcc, :flex_sdk, :alchemy_setup, :bin
