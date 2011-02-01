@@ -20,10 +20,11 @@
 # THE SOFTWARE.
 #
 module Buildr
-  module Compiler
+  module AS3
     class Flex4SDK
       
-      attr_reader :home, :mxmlc_jar, :compc_jar, :asdoc_jar, :fcsh_jar, :flex_config, :asdoc_templates, :default_options, :air_config, :bin
+      attr_reader :home, :mxmlc_jar, :compc_jar, :asdoc_jar, :fcsh_jar, :flex_config,
+                  :asdoc_templates, :default_options, :air_config, :bin
       
       attr_writer :flex_config, :air_config, :asdoc_templates
       
@@ -35,7 +36,6 @@ module Buildr
                 
         sdk_zip = Buildr::artifact("com.adobe.flex:sdk:zip:#{sdk_opts[:sdk_version]}").from(Buildr::download(sdk_opts[:sdk_url]))
         sdk_zip.invoke unless File.exists? sdk_zip.to_s
-        
         sdk_dir = File.join(File.dirname(sdk_zip.to_s), "sdk-#{sdk_opts[:sdk_version]}")
 
         unless File.exists? sdk_dir
@@ -53,7 +53,7 @@ module Buildr
         @air_config = "#{@home}/frameworks/air-config.xml"
         @bin = "#{@home}/bin"
       end
-      
+
       protected
 
       def generate_url(opts = {})

@@ -60,5 +60,59 @@ module Buildr
 
       end
     end
+
+    module Compiler
+      class AlcGcc < Buildr::Compiler::Base
+      specify :language => :c,
+              :sources => :c, :source_ext => :c,
+              :target => "bin", :target_ext => "swc",
+              :packaging => :swc
+
+      attr_reader :project
+
+      def initialize(project, options)
+        super
+        @project = project
+      end
+
+      include CompilerUtils
+
+      def compile(sources, target, dependencies)
+        alchemy_tk = options[:alchemytk]
+        flex_sdk = alchemy_tk.flex_sdk
+        output =  CompilerUtils::get_output(project,target,:swc,options)
+
+        # gcc stringecho.c -O3 -Wall -swc -o stringecho.swc
+        cmd_args = []
+        cmd_args << "gcc"
+        cmd_args << File.basename(options[:main])
+        cmd_args << "-O3 -Wall -swc"
+        cmd_args << "-o #{File.basename output}"
+
+        reserved = [:flexsdk,:main,:alchemytk]
+        options.to_hash.reject { |key, value| reserved.include?(key) }.
+            each do |key, value|
+              cmd_args << "-#{key}=#{value}"
+        end
+
+        unless Buildr.application.options.dryrun
+          ENV["ALCHEMY_HOME"]= alchemy_tk.home
+          ENV["ALCHEMY_VER"] = "0.4a"
+          ENV["PATH"] = "#{alchemy_tk.bin}:#{ENV["PATH"]}"
+          ENV["ASC"]="#{alchemy_tk.home}/bin/asc.jar"
+          ENV["SWFBRIDGE"]="#{alchemy_tk.home}/bin/swfbridge"
+          ENV["PATH"] = "#{alchemy_tk.achacks}:#{ENV["PATH"]}"
+          ENV["PATH"] = "#{ENV["PATH"]}:#{flex_sdk.bin}"
+          project_dir = Dir.getwd
+          Dir.chdir File.dirname options[:main]
+          system(cmd_args.join(" "))
+          File.copy( File.basename(output), output)
+          File.delete File.basename(output)
+          Dir.chdir project_dir
+        end
+      end
+    end
+    end
   end
 end
+Buildr::Compiler.compilers << Buildr::AS3::Compiler::AlcGcc

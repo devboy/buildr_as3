@@ -22,41 +22,44 @@
 require 'buildr/core/doc'
 
 module Buildr
-  module Doc
-    class Asdoc < Base
+  module AS3
+    module Doc
+      class Asdoc < Buildr::Doc::Base
 
-      specify :language => :actionscript, :source_ext => :as
+        specify :language => :actionscript,
+                :source_ext => :as
 
-      def generate(sources, target, options = {})
-        dependencies = project.compile.dependencies
-        sources = project.compile.sources
-        flex_sdk = options[:flexsdk]
-        output =  (options[:output] || "#{target}")
-        cmd_args = []
-        cmd_args << "-classpath" << "#{flex_sdk.home}/lib/xalan.jar"
-        cmd_args << "-classpath" << flex_sdk.asdoc_jar
-        cmd_args << "flex2.tools.ASDoc"
-        cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
-        cmd_args << "-load-config" << flex_sdk.flex_config
-        cmd_args << "-output" << output
-        cmd_args << "-source-path" << sources.join(" ")
-        cmd_args << "-doc-sources" << sources.join(" ")
-        cmd_args << "-templates-path" << flex_sdk.asdoc_templates
-        cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
-        reserved = [:flexsdk,:main,:classpath,:sourcepath]
-        options.to_hash.reject { |key, value| reserved.include?(key) }.
-            each do |key, value|
-              cmd_args << "-#{key}=#{value}"
-            end
-        flex_sdk.default_options.each do |key, value|
-              cmd_args << "-#{key}=#{value}"
-        end
-        unless Buildr.application.options.dryrun
-          Java::Commands.java cmd_args
+        def generate(sources, target, options = {})
+          dependencies = project.compile.dependencies
+          sources = project.compile.sources
+          flex_sdk = options[:flexsdk]
+          output =  (options[:output] || "#{target}")
+          cmd_args = []
+          cmd_args << "-classpath" << "#{flex_sdk.home}/lib/xalan.jar"
+          cmd_args << "-classpath" << flex_sdk.asdoc_jar
+          cmd_args << "flex2.tools.ASDoc"
+          cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
+          cmd_args << "-load-config" << flex_sdk.flex_config
+          cmd_args << "-output" << output
+          cmd_args << "-source-path" << sources.join(" ")
+          cmd_args << "-doc-sources" << sources.join(" ")
+          cmd_args << "-templates-path" << flex_sdk.asdoc_templates
+          cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
+          reserved = [:flexsdk,:main,:classpath,:sourcepath]
+          options.to_hash.reject { |key, value| reserved.include?(key) }.
+              each do |key, value|
+                cmd_args << "-#{key}=#{value}"
+              end
+          flex_sdk.default_options.each do |key, value|
+                cmd_args << "-#{key}=#{value}"
+          end
+          unless Buildr.application.options.dryrun
+            Java::Commands.java cmd_args
+          end
         end
       end
     end
   end
 end
 
-Buildr::Doc.engines << Buildr::Doc::Asdoc
+Buildr::Doc.engines << Buildr::AS3::Doc::Asdoc

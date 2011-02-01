@@ -20,9 +20,10 @@
 # THE SOFTWARE.
 #
 module Buildr
-  module BuildrAs3
+  module AS3
       class ApparatToolkit
-        attr_reader :home, :asmifier, :concrete, :coverage, :dump, :jitb, :reducer, :stripper, :tdsi, :asm_swc,
+        attr_reader :home, :asmifier, :concrete, :coverage, :dump,
+                    :jitb, :reducer, :stripper, :tdsi, :asm_swc,
                     :ersatz_swc, :lzma_decoder_swc
 
         def initialize(apparat_version,apparat_url)
@@ -55,7 +56,6 @@ module Buildr
         include Extension
 
         first_time do
-          # Define task not specific to any projet.
           Project.local_task('apparat_tdsi')
           Project.local_task('apparat_reducer')
         end
@@ -67,10 +67,7 @@ module Buildr
         end
 
         def apparat_tdsi(apparat_tk,options = {})
-          puts "aparat_tdsi"
-          main = compile.options[:main]
-          mainfile = File.basename(main, File.extname(main))
-          output =  (compile.options[:output] || "#{compile.target}/#{mainfile}.swf")
+          output = Buildr::AS3::Compiler::CompilerUtils::get_output(project,compile.target,compile.packaging,compile.options)
           cmd_args = []
           cmd_args << apparat_tk.tdsi
           cmd_args << "-i #{output}"
@@ -78,27 +75,24 @@ module Buildr
           reserved = []
           options.to_hash.reject { |key, value| reserved.include?(key) }.
             each do |key, value|
-              cmd_args << "-#{key}=#{value}"
+              cmd_args << "-#{key} #{value}"
           end
           system(cmd_args.join " ")
         end
 
         def apparat_reducer(apparat_tk,quality)
-          puts "aparat_reducer"
-          main = compile.options[:main]
-          mainfile = File.basename(main, File.extname(main))
-          output =  (compile.options[:output] || "#{compile.target}/#{mainfile}.swf")
+          output = Buildr::AS3::Compiler::CompilerUtils::get_output(project,compile.target,compile.packaging,compile.options)
           cmd_args = []
           cmd_args << apparat_tk.reducer
           cmd_args << "-i #{output}"
           cmd_args << "-o #{output}"
           cmd_args << "-q"
-          cmd_args << quality || 80
+          cmd_args << quality || 100
           system(cmd_args.join " ")
         end
       end
   end
   class Project
-    include Buildr::BuildrAs3::Apparat
+    include Buildr::AS3::Apparat
   end
 end

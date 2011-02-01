@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
     "VERSION",
     "buildr-as3.gemspec",
     "lib/buildr/as3.rb",
-    "lib/buildr/as3/alchemytk.rb",
+    "lib/buildr/as3/alchemy.rb",
     "lib/buildr/as3/apparat.rb",
     "lib/buildr/as3/compiler.rb",
     "lib/buildr/as3/doc.rb",
