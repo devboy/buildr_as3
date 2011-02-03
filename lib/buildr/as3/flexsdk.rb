@@ -25,7 +25,7 @@ module Buildr
       class FlexSDK
 
         attr_reader :home, :mxmlc_jar, :compc_jar, :asdoc_jar, :fcsh_jar, :flex_config,
-                    :asdoc_templates, :default_options, :air_config, :bin
+                    :asdoc_templates, :default_options, :air_config, :bin, :adt_jar
 
         attr_writer :flex_config, :air_config, :asdoc_templates
 
@@ -48,6 +48,8 @@ module Buildr
           @mxmlc_jar = "#{@home}/lib/mxmlc.jar"
           @compc_jar = "#{@home}/lib/compc.jar"
           @asdoc_jar = "#{@home}/lib/asdoc.jar"
+          @adt_jar = "#{@home}/lib/adt.jar"
+          @adl = Buildr::Util.win_os? ? "#{@home}/bin/adl.exe" : "#{@home}/bin/adl"
           @asdoc_templates = "#{@home}/asdoc/templates"
           @fcsh_jar = "#{@home}/lib/fcsh.jar"
           @flex_config = "#{@home}/frameworks/flex-config.xml"
