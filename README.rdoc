@@ -4,20 +4,20 @@
 
 == Changelog
 
- == 0.1.13
+== 0.1.13
 
- * Fixed a bug in "as3:fdt4:generate" which would mess up files while creating symlinks.
+* Fixed a bug in "as3:fdt4:generate" which would mess up files while creating symlinks.
 
- == 0.1.12
+== 0.1.12
 
- * Implemented a dependency file generation task ("as3:fdt4:generate") to create FDT4 classpath files for auto-completion.
+* Implemented a dependency file generation task ("as3:fdt4:generate") to create FDT4 classpath files for auto-completion.
 
- == 0.1.11
+== 0.1.11
 
- * Updated compiler-wrapper for Adobe AIR (":airmxmlc" & ":aircompc")
- * Implemented packaging task for .air files "package(:air).sign(...).include(...)"
+* Updated compiler-wrapper for Adobe AIR (":airmxmlc" & ":aircompc")
+* Implemented packaging task for .air files "package(:air).sign(...).include(...)"
 
- == Contributing to buildr_as3
+== Contributing to buildr_as3
  
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
