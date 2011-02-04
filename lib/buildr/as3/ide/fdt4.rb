@@ -41,7 +41,6 @@ module Buildr
             project.task("as3:fdt4:generate") do
               fail("Cannot create fdt4 projects on Windows machines, no support for symlinks.") unless !Buildr::Util.win_os?
               if [:mxmlc,:compc,:airmxmlc,:aircompc].include? project.compile.compiler
-
                 output = project.base_dir + "/.settings/com.powerflasher.fdt.classpath"
                 puts "Writing FDT4 classpath file: #{output}"
                 puts "WARNING: This will create symlinks in #{project.path_to(:lib,:main,:as3)} as FDT4 doesn't support referencing files outside of the project folder."
@@ -101,8 +100,10 @@ module Buildr
                 path = dependency.to_s
             end
             target = project.path_to(:lib,:main,:as3) + "/" + File.basename(path)
-            File.delete(target) if File.exists?(target)
-            File.symlink path, target
+            unless target != path
+              File.delete(target) if File.exists?(target)
+              File.symlink path, target
+            end
             target
           end
 
