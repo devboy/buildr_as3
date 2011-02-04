@@ -19,84 +19,121 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
+
+require 'fileutils'
 module Buildr
   module AS3
-      module Apparat
-        class ApparatToolkit
-          attr_reader :home, :asmifier, :concrete, :coverage, :dump,
-                      :jitb, :reducer, :stripper, :tdsi, :asm_swc,
-                      :ersatz_swc, :lzma_decoder_swc
-
-          def initialize(apparat_version,apparat_url)
-
-            apparat_zip = Buildr::artifact("com.googlecode:apparat-bin:zip:#{apparat_version}").from(Buildr::download(apparat_url))
-            apparat_zip.invoke unless File.exists? apparat_zip.to_s
-            apparat_dir = File.join(File.dirname(apparat_zip.to_s), "apparat-bin-#{apparat_version}")
-            unless File.exists? apparat_dir
-              puts "Unzipping Apparat, this may take a while."
-              Buildr::unzip(apparat_dir=>apparat_zip.to_s).target.invoke
-            end
-
-            @home = apparat_dir
-            bat_ext = Buildr::Util.win_os? ? ".bat" : ""
-            @apparat = "#{@home}/apparat#{bat_ext}"
-            @asmifier = "#{@home}/asmifier#{bat_ext}"
-            @concrete = "#{@home}/concrete#{bat_ext}"
-            @coverage = "#{@home}/coverage#{bat_ext}"
-            @dump = "#{@home}/dump#{bat_ext}"
-            @jitb = "#{@home}/jitb#{bat_ext}"
-            @reducer = "#{@home}/reducer#{bat_ext}"
-            @stripper = "#{@home}/stripper#{bat_ext}"
-            @tdsi = "#{@home}/tdsi#{bat_ext}"
-            @asm_swc = "#{@home}/apparat-asm-#{apparat_version}.swc"
-            @ersatz_swc = "#{@home}/apparat-ersatz-#{apparat_version}.swc"
-            @lzma_decoder_swc = "#{@home}/apparat-lzma-decoder-#{apparat_version}.swc"
-          end
-        end
+    module IDE
+      module FDT4
         module Tasks
-          include Extension
+          include Buildr::Extension
 
           first_time do
-            Project.local_task('apparat_tdsi')
-            Project.local_task('apparat_reducer')
+            desc "Generates dependency file for FDT4 projects"
+            Project.local_task('as3:fdt4:generate')
           end
 
           before_define do |project|
+            project.recursive_task("as3:fdt4:generate")
           end
 
-          after_define do |project|
-          end
+          after_define("as3:fdt4:generate" => :package) do |project|
+            project.task("as3:fdt4:generate") do
+              fail("Cannot create fdt4 projects on Windows machines, no support for symlinks.") unless !Buildr::Util.win_os?
+              if [:mxmlc,:compc,:airmxmlc,:aircompc].include? project.compile.compiler
 
-          def apparat_tdsi(options = {})
-            output = Buildr::AS3::Compiler::CompilerUtils::get_output(project,compile.target,compile.packaging,compile.options)
-            apparat_tk = compile.options[:apparat]
-            cmd_args = []
-            cmd_args << apparat_tk.tdsi
-            cmd_args << "-i #{output}"
-            cmd_args << "-o #{output}"
-            reserved = []
-            options.to_hash.reject { |key, value| reserved.include?(key) }.
-              each do |key, value|
-                cmd_args << "-#{key} #{value}"
+                output = project.base_dir + "/.settings/com.powerflasher.fdt.classpath"
+                puts "Writing FDT4 classpath file: #{output}"
+                puts "WARNING: This will create symlinks in #{project.path_to(:lib,:main,:as3)} as FDT4 doesn't support referencing files outside of the project folder."
+                sdk_based_libs = []
+                sdk_based_libs << "frameworks/libs/player/{playerVersion}/playerglobal.swc"
+                sdk_based_libs << "frameworks/libs/flex.swc"
+                sdk_based_libs << "frameworks/libs/textLayout.swc"
+                sdk_based_libs << "frameworks/libs/framework.swc"
+                sdk_based_libs << "frameworks/libs/framework.swc"
+                sdk_based_libs << "frameworks/libs/rpc.swc"
+                sdk_based_libs << "frameworks/libs/spark.swc"
+                sdk_based_libs << "frameworks/libs/sparkskins.swc"
+                sdk_based_libs << "frameworks/libs/datavisualization.swc"
+
+                if [:airmxmlc,:aircompc].include? project.compile.compiler
+                  sdk_based_libs << "frameworks/libs/air/airglobal.swc"
+                  sdk_based_libs << "frameworks/libs/air/airframework.swc"
+                  sdk_based_libs << "frameworks/libs/air/airspark.swc"
+                  sdk_based_libs << "frameworks/libs/air/applicationupdater.swc"
+                  sdk_based_libs << "frameworks/libs/air/applicationupdater_ui.swc"
+                  sdk_based_libs << "frameworks/libs/air/servicemonitor.swc"
+                end
+
+                contents = ""
+                classpath_xml = Builder::XmlMarkup.new(:target => contents, :indent => 4)
+                classpath_xml.instruct!
+                classpath_xml.AS3Classpath do
+                  sdk_based_libs.each do |sdk_lib|
+                    classpath_xml.AS3Classpath( sdk_lib, :generateProblems => false, :sdkBased => true, :type => "lib", :useAsSharedCode => "false" )
+                  end
+                  project.compile.sources.each do |source|
+                    classpath_xml.AS3Classpath( project.get_eclipse_relative_path(project,source), :generateProblems => true, :sdkBased => false, :type => project.get_fdt4_classpath_type(source), :useAsSharedCode => "false" )
+                  end
+                  unless File.directory? project.path_to(:lib,:main,:as3)
+                    #:dummy is just a bogus thing, it somehow stops creating the folders a layer to early
+                    FileUtils.mkdir_p File.dirname(project.path_to(:lib,:main,:as3,:dummy))
+                  end
+                  project.compile.dependencies.each do |dependency|
+                    dependency = project.create_fdt4_dependency_symlink( project, dependency )
+                    classpath_xml.AS3Classpath( project.get_eclipse_relative_path(project,dependency), :generateProblems => false, :sdkBased => false, :type => project.get_fdt4_classpath_type(dependency), :useAsSharedCode => "false" )
+                  end
+                end
+
+                unless File.directory? File.dirname(output)
+                  Dir.mkdir File.dirname(output)
+                end
+                File.open(output, 'w') {|f| f.write(contents) }
+              end
             end
-            system(cmd_args.join " ")
           end
 
-          def apparat_reducer(quality)
-            output = Buildr::AS3::Compiler::CompilerUtils::get_output(project,compile.target,compile.packaging,compile.options)
-            apparat_tk = compile.options[:apparat]
-            cmd_args = []
-            cmd_args << apparat_tk.reducer
-            cmd_args << "-i #{output}"
-            cmd_args << "-o #{output}"
-            cmd_args << "-q"
-            cmd_args << quality || 100
-            system(cmd_args.join " ")
+          def create_fdt4_dependency_symlink( project, dependency )
+            case source
+              when Buildr::Artifact then
+                path = dependency.name
+              else
+                path = dependency.to_s
+            end
+            target = project.path_to(:lib,:main,:as3) + "/" + File.basename(path)
+            File.delete(target) if File.exists?(target)
+            File.symlink path, target
+            target
           end
+
+          def get_eclipse_relative_path( project, source )
+            case source
+              when Buildr::Artifact then
+                path = source.name
+              else
+                path = source.to_s
+            end
+            Util.relative_path(File.expand_path(path), project.base_dir)
+          end
+
+          def get_fdt4_classpath_type( source )
+            case source
+              when Buildr::Artifact then
+                return "source" if File.directory?( source.name )
+                return "lib" if File.extname(source.name) == ".swc"
+              else
+
+                return "source" if File.directory?( source.to_s )
+                return "lib" if File.extname(source.to_s) == ".swc"
+            end
+            "Could not guess type!"
+          end
+
         end
       end
+    end
   end
   class Project
-    include Buildr::AS3::Apparat::Tasks
+    include Buildr::AS3::IDE::FDT4::Tasks
   end
 end
