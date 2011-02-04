@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{buildr-as3}
-  s.version = "0.1.11"
+  s.version = "0.1.12"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Dominic Graefen"]
-  s.date = %q{2011-02-03}
+  s.date = %q{2011-02-04}
   s.description = %q{Build like you code - now supporting ActionScript 3 & Flex}
   s.email = %q{dominic @nospam@ devboy.org}
   s.extra_rdoc_files = [
@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
     "lib/buildr/as3/compiler.rb",
     "lib/buildr/as3/doc.rb",
     "lib/buildr/as3/flexsdk.rb",
+    "lib/buildr/as3/ide/fdt4.rb",
     "lib/buildr/as3/packaging.rb",
     "test/helper.rb",
     "test/test_buildr_as3.rb"
