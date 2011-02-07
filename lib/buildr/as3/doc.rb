@@ -33,7 +33,7 @@ module Buildr
           dependencies = project.compile.dependencies
           sources = project.compile.sources
           flex_sdk = options[:flexsdk]
-          output =  (options[:output] || "#{target}")
+          output = (options[:output] || "#{target}")
           cmd_args = []
           cmd_args << "-classpath" << "#{flex_sdk.home}/lib/xalan.jar"
           cmd_args << "-classpath" << flex_sdk.asdoc_jar
@@ -45,13 +45,13 @@ module Buildr
           cmd_args << "-doc-sources" << sources.join(" ")
           cmd_args << "-templates-path" << flex_sdk.asdoc_templates
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
-          reserved = [:flexsdk,:main,:classpath,:sourcepath]
+          reserved = [:flexsdk, :main, :classpath, :sourcepath]
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
-                cmd_args << "-#{key}=#{value}"
-              end
+            cmd_args << "-#{key}=#{value}"
+          end
           flex_sdk.default_options.each do |key, value|
-                cmd_args << "-#{key}=#{value}"
+            cmd_args << "-#{key}=#{value}"
           end
           unless Buildr.application.options.dryrun
             Java::Commands.java cmd_args

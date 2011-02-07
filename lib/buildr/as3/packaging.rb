@@ -37,7 +37,7 @@ module Buildr
           super
           enhance do
             fail "File not found: #{src_swc}" unless File.exists? src_swc
-            File.copy( src_swc, target_swc )
+            File.copy(src_swc, target_swc)
           end
         end
 
@@ -70,7 +70,7 @@ module Buildr
           super
           enhance do
             fail "File not found: #{src_swf}" unless File.exists? src_swf
-            File.copy( src_swf, target_swf )
+            File.copy(src_swf, target_swf)
           end
         end
 
@@ -156,7 +156,7 @@ module Buildr
           args.each do |arg|
             case arg
               when Hash
-                arg.each do |key,value|
+                arg.each do |key, value|
                   @libs[key] = value
                 end
             end
@@ -183,15 +183,15 @@ module Buildr
       def package_as_swc(file_name)
         fail("Package types don't match! :swc vs. :#{compile.packaging.to_s}") unless compile.packaging == :swc
         SwcTask.define_task(file_name).tap do |swc|
-          swc.src_swc = Buildr::AS3::Compiler::CompilerUtils::get_output(project,compile.target,:swc,compile.options)
+          swc.src_swc = Buildr::AS3::Compiler::CompilerUtils::get_output(project, compile.target, :swc, compile.options)
           swc.target_swc = file_name
         end
       end
 
       def package_as_swf(file_name)
-       fail("Package types don't match! :swf vs. :#{compile.packaging.to_s}") unless compile.packaging == :swf
+        fail("Package types don't match! :swf vs. :#{compile.packaging.to_s}") unless compile.packaging == :swf
         SwfTask.define_task(file_name).tap do |swf|
-          swf.src_swf =  Buildr::AS3::Compiler::CompilerUtils::get_output(project,compile.target,:swf,compile.options)
+          swf.src_swf = Buildr::AS3::Compiler::CompilerUtils::get_output(project, compile.target, :swf, compile.options)
           swf.target_swf = file_name
         end
       end
@@ -199,7 +199,7 @@ module Buildr
       def package_as_air(file_name)
         fail("Package types don't match! :swf vs. :#{compile.packaging.to_s}") unless compile.packaging == :swf
         AirTask.define_task(file_name).tap do |swf|
-          swf.src_swf =  Buildr::AS3::Compiler::CompilerUtils::get_output(project,compile.target,:swf,compile.options)
+          swf.src_swf = Buildr::AS3::Compiler::CompilerUtils::get_output(project, compile.target, :swf, compile.options)
           swf.target_air = file_name
           swf.flexsdk = compile.options[:flexsdk]
         end
