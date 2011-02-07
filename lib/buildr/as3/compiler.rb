@@ -25,15 +25,15 @@ module Buildr
   module AS3
     module Compiler
       module CompilerUtils
-        def self.get_output( project, target, package, options )
+        def self.get_output(project, target, package, options)
           return options[:output] if options.has_key? :output
           return "#{target}/#{File.basename(options[:main].to_s, File.extname(options[:main].to_s))}.swf" if package == :swf
           return "#{target}/#{project.name.gsub(":", "-")}.swc" if package == :swc
-          fail( "Could not guess output file.")
+          fail("Could not guess output file.")
         end
 
         def needed?(sources, target, dependencies)
-          output =  CompilerUtils::get_output(project,target,project.compile.packaging,options)
+          output = CompilerUtils::get_output(project, target, project.compile.packaging, options)
           sources.each do |source|
             if is_output_outdated?(output, source)
               puts "Recompile of #{project.name} needed: Sources are newer than target"
@@ -50,12 +50,12 @@ module Buildr
           false
         end
 
-        def is_output_outdated?(output,file_to_check)
+        def is_output_outdated?(output, file_to_check)
           return true unless File.exists? output
-          older(output,file_to_check)
+          older(output, file_to_check)
         end
 
-        def older(a,b) # a older than b
+        def older(a, b) # a older than b
           timestamp_from_file(a) < timestamp_from_file(b)
         end
 
@@ -93,8 +93,8 @@ module Buildr
         include CompilerUtils
 
         def compile(sources, target, dependencies)
-          flex_sdk = options[:flexsdk]
-          output =  CompilerUtils::get_output(project,target,:swf,options)
+          flex_sdk = options[:flexsdk].invoke
+          output = CompilerUtils::get_output(project, target, :swf, options)
 
           cmd_args = []
           cmd_args << "-jar" << flex_sdk.mxmlc_jar
@@ -105,13 +105,13 @@ module Buildr
           cmd_args << "-source-path" << sources.join(" ")
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
           options[:debug] = Buildr.options.debug.to_s
-          reserved = [:flexsdk,:main,:apparat]
+          reserved = [:flexsdk, :main, :apparat]
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
-                cmd_args << "-#{key}=#{value}"
+            cmd_args << "-#{key}=#{value}"
           end
           flex_sdk.default_options.each do |key, value|
-                cmd_args << "-#{key}=#{value}"
+            cmd_args << "-#{key}=#{value}"
           end
 
           unless Buildr.application.options.dryrun
@@ -137,8 +137,8 @@ module Buildr
         include CompilerUtils
 
         def compile(sources, target, dependencies)
-          flex_sdk = options[:flexsdk]
-          output =  CompilerUtils::get_output(project,target,:swf,options)
+          flex_sdk = options[:flexsdk].invoke
+          output = CompilerUtils::get_output(project, target, :swf, options)
 
           cmd_args = []
           cmd_args << "-jar" << flex_sdk.mxmlc_jar
@@ -150,13 +150,13 @@ module Buildr
           cmd_args << "-source-path" << sources.join(" ")
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
           options[:debug] = Buildr.options.debug.to_s
-          reserved = [:flexsdk,:main,:apparat]
+          reserved = [:flexsdk, :main, :apparat]
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
-                cmd_args << "-#{key}=#{value}"
+            cmd_args << "-#{key}=#{value}"
           end
           flex_sdk.default_options.each do |key, value|
-                cmd_args << "-#{key}=#{value}"
+            cmd_args << "-#{key}=#{value}"
           end
 
           unless Buildr.application.options.dryrun
@@ -171,6 +171,7 @@ module Buildr
                 :target => "bin", :target_ext => "swc",
                 :packaging => :swc
         attr_reader :project
+
         def initialize(project, options)
           super
           @project = project
@@ -179,8 +180,8 @@ module Buildr
         include CompilerUtils
 
         def compile(sources, target, dependencies)
-          flex_sdk = options[:flexsdk]
-          output =  CompilerUtils::get_output(project,target,:swc,options)
+          flex_sdk = options[:flexsdk].invoke
+          output = CompilerUtils::get_output(project, target, :swc, options)
           cmd_args = []
           cmd_args << "-jar" << flex_sdk.compc_jar
           cmd_args << "-output" << output
@@ -188,14 +189,14 @@ module Buildr
           cmd_args << "-load-config" << flex_sdk.flex_config
           cmd_args << "-include-sources" << sources.join(" ")
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
-          reserved = [:flexsdk,:main,:apparat]
+          reserved = [:flexsdk, :main, :apparat]
           options[:debug] = Buildr.options.debug.to_s
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
-                cmd_args << "-#{key}=#{value}"
-              end
+            cmd_args << "-#{key}=#{value}"
+          end
           flex_sdk.default_options.each do |key, value|
-                cmd_args << "-#{key}=#{value}"
+            cmd_args << "-#{key}=#{value}"
           end
 
           unless Buildr.application.options.dryrun
@@ -210,6 +211,7 @@ module Buildr
                 :target => "bin", :target_ext => "swc",
                 :packaging => :swc
         attr_reader :project
+
         def initialize(project, options)
           super
           @project = project
@@ -218,8 +220,8 @@ module Buildr
         include CompilerUtils
 
         def compile(sources, target, dependencies)
-          flex_sdk = options[:flexsdk]
-          output =  CompilerUtils::get_output(project,target,:swc,options)
+          flex_sdk = options[:flexsdk].invoke
+          output = CompilerUtils::get_output(project, target, :swc, options)
           cmd_args = []
           cmd_args << "-jar" << flex_sdk.compc_jar
           cmd_args << "-output" << output
@@ -229,13 +231,13 @@ module Buildr
           cmd_args << "-include-sources" << sources.join(" ")
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
           options[:debug] = Buildr.options.debug.to_s
-          reserved = [:flexsdk,:main,:apparat]
+          reserved = [:flexsdk, :main, :apparat]
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
-                cmd_args << "-#{key}=#{value}"
-              end
+            cmd_args << "-#{key}=#{value}"
+          end
           flex_sdk.default_options.each do |key, value|
-                cmd_args << "-#{key}=#{value}"
+            cmd_args << "-#{key}=#{value}"
           end
 
           unless Buildr.application.options.dryrun

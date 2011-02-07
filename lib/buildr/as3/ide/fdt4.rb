@@ -40,10 +40,10 @@ module Buildr
           after_define("as3:fdt4:generate" => :package) do |project|
             project.task("as3:fdt4:generate") do
               fail("Cannot create fdt4 projects on Windows machines, no support for symlinks.") unless !Buildr::Util.win_os?
-              if [:mxmlc,:compc,:airmxmlc,:aircompc].include? project.compile.compiler
+              if [:mxmlc, :compc, :airmxmlc, :aircompc].include? project.compile.compiler
                 output = project.base_dir + "/.settings/com.powerflasher.fdt.classpath"
                 puts "Writing FDT4 classpath file: #{output}"
-                puts "WARNING: This will create symlinks in #{project.path_to(:lib,:main,:as3)} as FDT4 doesn't support referencing files outside of the project folder."
+                puts "WARNING: This will create symlinks in #{project.path_to(:lib, :main, :as3)} as FDT4 doesn't support referencing files outside of the project folder."
                 sdk_based_libs = []
                 sdk_based_libs << "frameworks/libs/player/{playerVersion}/playerglobal.swc"
                 sdk_based_libs << "frameworks/libs/flex.swc"
@@ -55,7 +55,7 @@ module Buildr
                 sdk_based_libs << "frameworks/libs/sparkskins.swc"
                 sdk_based_libs << "frameworks/libs/datavisualization.swc"
 
-                if [:airmxmlc,:aircompc].include? project.compile.compiler
+                if [:airmxmlc, :aircompc].include? project.compile.compiler
                   sdk_based_libs << "frameworks/libs/air/airglobal.swc"
                   sdk_based_libs << "frameworks/libs/air/airframework.swc"
                   sdk_based_libs << "frameworks/libs/air/airspark.swc"
@@ -69,37 +69,37 @@ module Buildr
                 classpath_xml.instruct!
                 classpath_xml.AS3Classpath do
                   sdk_based_libs.each do |sdk_lib|
-                    classpath_xml.AS3Classpath( sdk_lib, :generateProblems => false, :sdkBased => true, :type => "lib", :useAsSharedCode => "false" )
+                    classpath_xml.AS3Classpath(sdk_lib, :generateProblems => false, :sdkBased => true, :type => "lib", :useAsSharedCode => "false")
                   end
                   project.compile.sources.each do |source|
-                    classpath_xml.AS3Classpath( project.get_eclipse_relative_path(project,source), :generateProblems => true, :sdkBased => false, :type => project.get_fdt4_classpath_type(source), :useAsSharedCode => "false" )
+                    classpath_xml.AS3Classpath(project.get_eclipse_relative_path(project, source), :generateProblems => true, :sdkBased => false, :type => project.get_fdt4_classpath_type(source), :useAsSharedCode => "false")
                   end
-                  unless File.directory? project.path_to(:lib,:main,:as3)
+                  unless File.directory? project.path_to(:lib, :main, :as3)
                     #:dummy is just a bogus thing, it somehow stops creating the folders a layer to early
-                    FileUtils.mkdir_p File.dirname(project.path_to(:lib,:main,:as3,:dummy))
+                    FileUtils.mkdir_p File.dirname(project.path_to(:lib, :main, :as3, :dummy))
                   end
                   project.compile.dependencies.each do |dependency|
-                    dependency = project.create_fdt4_dependency_symlink( project, dependency )
-                    classpath_xml.AS3Classpath( project.get_eclipse_relative_path(project,dependency), :generateProblems => false, :sdkBased => false, :type => project.get_fdt4_classpath_type(dependency), :useAsSharedCode => "false" )
+                    dependency = project.create_fdt4_dependency_symlink(project, dependency)
+                    classpath_xml.AS3Classpath(project.get_eclipse_relative_path(project, dependency), :generateProblems => false, :sdkBased => false, :type => project.get_fdt4_classpath_type(dependency), :useAsSharedCode => "false")
                   end
                 end
 
                 unless File.directory? File.dirname(output)
                   Dir.mkdir File.dirname(output)
                 end
-                File.open(output, 'w') {|f| f.write(contents) }
+                File.open(output, 'w') { |f| f.write(contents) }
               end
             end
           end
 
-          def create_fdt4_dependency_symlink( project, dependency )
+          def create_fdt4_dependency_symlink(project, dependency)
             case source
               when Buildr::Artifact then
                 path = dependency.name
               else
                 path = dependency.to_s
             end
-            target = project.path_to(:lib,:main,:as3) + "/" + File.basename(path)
+            target = project.path_to(:lib, :main, :as3) + "/" + File.basename(path)
             unless target != path
               File.delete(target) if File.exists?(target)
               File.symlink path, target
@@ -107,7 +107,7 @@ module Buildr
             target
           end
 
-          def get_eclipse_relative_path( project, source )
+          def get_eclipse_relative_path(project, source)
             case source
               when Buildr::Artifact then
                 path = source.name
@@ -117,14 +117,14 @@ module Buildr
             Util.relative_path(File.expand_path(path), project.base_dir)
           end
 
-          def get_fdt4_classpath_type( source )
+          def get_fdt4_classpath_type(source)
             case source
               when Buildr::Artifact then
-                return "source" if File.directory?( source.name )
+                return "source" if File.directory?(source.name)
                 return "lib" if File.extname(source.name) == ".swc"
               else
 
-                return "source" if File.directory?( source.to_s )
+                return "source" if File.directory?(source.to_s)
                 return "lib" if File.extname(source.to_s) == ".swc"
             end
             "Could not guess type!"
