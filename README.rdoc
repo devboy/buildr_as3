@@ -6,23 +6,15 @@
 
 == 0.1.17
 
-* [FXIED]
-Actually no files were updated in version 0.1.16 because of a git hick-up,
-now the changes meant for 0.1.16 are applied in 0.1.17.
+* [FXIED] Actually no files were updated in version 0.1.16 because of a git hick-up, now the changes meant for 0.1.16 are applied in 0.1.17.
 
 == 0.1.16
 
-* [FEATURE]
-API for Framworks and Toolkits integration has been refactored and updated.
+* [FEATURE] API for Framworks and Toolkits integration has been refactored and updated.
 
-* [FIXED] Issue 15
-Zip file extraction is now handled with gnuwin32 unzip on Windows, and the equivalent
-on *nix platforms as a fallback for rubyzip.
-On Windows gnuwin32 unzip needs to be installed and added to the PATH variable.
+* [FIXED] Issue 15: Zip file extraction is now handled with gnuwin32 unzip on Windows, and the equivalent on *nix platforms as a fallback for rubyzip. On Windows gnuwin32 unzip needs to be installed and added to the PATH variable.
 
-* [FIXED] Issue 16
-Binarymode was not set on target-file, which caused the downloaded archive to be corrupt.
-This is an issue of buildr and was reported.
+* [FIXED] Issue 16: Binarymode was not set on target-file, which caused the downloaded archive to be corrupt. This is an issue of buildr and was reported.
 
 == 0.1.13
 
