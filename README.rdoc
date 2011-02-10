@@ -4,9 +4,13 @@
 
 = Changelog
 
+== 0.1.18
+
+* [FIXED] Fixed a bug in as3:fdt4:generate, which would overwrite files with a symlink to itself.
+
 == 0.1.17
 
-* [FXIED] Actually no files were updated in version 0.1.16 because of a git hick-up, now the changes meant for 0.1.16 are applied in 0.1.17.
+* [FIXED] Actually no files were updated in version 0.1.16 because of a git hick-up, now the changes meant for 0.1.16 are applied in 0.1.17.
 
 == 0.1.16
 
