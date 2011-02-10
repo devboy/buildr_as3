@@ -100,9 +100,12 @@ module Buildr
                 path = dependency.to_s
             end
             target = project.path_to(:lib, :main, :as3) + "/" + File.basename(path)
-            unless target != path
-              File.delete(target) if File.exists?(target)
-              File.symlink path, target
+            if target != path
+              unless File.exists?(target) && !File.symlink?(target)
+                puts "Creating symlink: #{target}"
+                File.delete(target) if File.exists?(target)
+                File.symlink path, target
+              end
             end
             target
           end

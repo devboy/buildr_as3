@@ -29,7 +29,7 @@ module Buildr
       class FlexSDK
 
         attr_reader :home, :mxmlc_jar, :compc_jar, :asdoc_jar, :fcsh_jar, :flex_config,
-                    :asdoc_templates, :default_options, :air_config, :bin, :adt_jar
+                    :asdoc_templates, :default_options, :air_config, :bin, :adt_jar, :adl
 
         attr_writer :flex_config, :air_config, :asdoc_templates
 

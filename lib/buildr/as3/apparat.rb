@@ -100,7 +100,6 @@ module Buildr
         end
       end
 
-
       module Tasks
         include Extension
 
@@ -119,7 +118,7 @@ module Buildr
           output = Buildr::AS3::Compiler::CompilerUtils::get_output(project, compile.target, compile.packaging, compile.options)
           apparat_tk = compile.options[:apparat].invoke
           cmd_args = []
-          cmd_args << "\"#{apparat_tk.tdsi}\""
+          cmd_args << "#{apparat_tk.tdsi}"
           cmd_args << "-i #{output}"
           cmd_args << "-o #{output}"
           reserved = []
@@ -128,15 +127,16 @@ module Buildr
             cmd_args << "-#{key} #{value}"
           end
           ENV["PATH"] = "#{apparat_tk.scala_home}/bin#{File::PATH_SEPARATOR}#{ENV["PATH"]}" if apparat_tk.scala_home && !ENV["PATH"].include?("#{apparat_tk.scala_home}/bin")
-          puts "path:", ENV["PATH"]
-          puts "tdsi:",cmd_args.join(" "), system(cmd_args.join " ")
+#          puts "path:", ENV["PATH"]
+#          puts "tdsi:",cmd_args.join(" "), system(cmd_args.join " ")
+          system(cmd_args.join " ")
         end
 
         def apparat_reducer(quality)
           output = Buildr::AS3::Compiler::CompilerUtils::get_output(project, compile.target, compile.packaging, compile.options)
           apparat_tk = compile.options[:apparat].invoke
           cmd_args = []
-          cmd_args << "\"#{apparat_tk.reducer}\""
+          cmd_args << "#{apparat_tk.reducer}"
           cmd_args << "-i #{output}"
           cmd_args << "-o #{output}"
           cmd_args << "-q"

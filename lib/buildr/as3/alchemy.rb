@@ -24,44 +24,113 @@ module Buildr
     module Alchemy
       class AlchemyToolkit
 
-        attr_reader :home, :achacks, :gcc, :flex_sdk, :alchemy_setup, :bin
+        attr_reader :home, :achacks, :gcc, :flex_sdk, :alchemy_setup, :bin, :swfbridge
 
         def initialize(flex_sdk)
-
-          fail("Alchemy support currently only on *nix based systems.") if Buildr::Util.win_os?
-
+          @version = "1.0-PR1"
+          @system = Buildr::Util.win_os? ? "win" : "unix"
+          @spec = "com.adobe.alchemy:toolkit:zip:#{@system}:#{@version}"
           @flex_sdk = flex_sdk
+          @alchemy_zip = Buildr.artifact(@spec)
+          @alchemy_dir = File.join(File.dirname(@alchemy_zip.to_s), "alchemy-#{@system}-#{@version}", get_alchemy_toolkit_subfolder(@system) )
+          generate_paths @alchemy_dir
+          self
+        end
 
-          toolkit_version = "1.0.0"
-          toolkit_url = "http://download.macromedia.com/pub/labs/alchemy/alchemy_sdk_darwin_p1_121008.zip"
+        def invoke
+          @url ||= get_alchemy_toolkit_url(@system)
 
-          toolkit_zip = Buildr::artifact("com.adobe.alchemy:toolkit:zip:#{toolkit_version}").from(Buildr::download(toolkit_url))
-          toolkit_zip.invoke unless File.exists? toolkit_zip.to_s
+#          if @url
+#            Buildr.artifact(@spec).from(Buildr.download(@url)).invoke unless File.exists? @alchemy_zip.to_s
+#          else
+#            Buildr.artifact(@spec).invoke unless File.exists? @alchemy_zip.to_s
+#          end
 
-          toolkit_dir = File.join(File.dirname(toolkit_zip.to_s), "toolkit-#{toolkit_version}")
-
-          unless File.exists? toolkit_dir
-            puts "Unzipping Alchemy Toolkit, this may take a while."
-            Buildr::unzip("#{toolkit_dir}"=>toolkit_zip.to_s).target.invoke
+          if Buildr::Util.win_os?
+            unless File.exists? @alchemy_zip.to_s
+              FileUtils.mkdir_p File.dirname(@alchemy_zip.to_s) unless File.directory? File.dirname(@alchemy_zip.to_s)
+              File.open @alchemy_zip.to_s, 'w' do |file|
+                file.binmode()
+                URI.read(@url, {:progress=>true}) { |chunk| file.write chunk }
+              end
+            end
+          else
+            Buildr.artifact(@spec).from(Buildr.download(@url)).invoke unless File.exists? @alchemy_zip.to_s
           end
 
-          @home = "#{toolkit_dir}/alchemy-darwin-v0.5a"
+          unless File.exists? @alchemy_dir
+            puts "Unzipping Alchemy, this might take a while."
+            unzip_dir = File.dirname @alchemy_dir
+            if Buildr::Util.win_os?
+              puts "Please make sure unzip is installed and in your PATH variable!"
+              unzip @alchemy_zip, unzip_dir
+            else
+              begin
+                Buildr.unzip(unzip_dir.to_s=>@alchemy_zip.to_s).target.invoke
+              rescue TypeError
+                puts "RubyZip extract failed, trying system unzip now."
+                unzip @alchemy_zip, unzip_dir
+              end
+            end
+          end
+          setup unless File.exists? @alchemy_setup
+          self
+        end
+
+        def from(url)
+          @url = url
+          self
+        end
+
+        protected
+
+        def unzip(zip, destination)
+          project_dir = Dir.getwd
+          Dir.chdir File.dirname(zip.to_s)
+          system("unzip #{File.basename(zip.to_s).to_s} -d #{File.basename(destination).to_s}")
+          Dir.chdir project_dir
+        end
+
+        def setup
+          project_dir = Dir.getwd
+          ENV["PATH"] = "#{flex_sdk.bin}#{File::PATH_SEPARATOR}#{ENV["PATH"]}"
+          Dir.chdir @home
+          system("sh ./config")
+          if Buildr::Util.win_os?
+            Dir.chdir @bin
+            system("ln -sf llvm-stub llvm-stub.exe")
+          end
+          Dir.chdir project_dir
+        end
+
+        def generate_paths(home_dir)
+          @home = home_dir
           @achacks = "#{@home}/achacks"
           @gcc = "#{@achacks}/gcc"
           @alchemy_setup = "#{@home}/alchemy-setup"
           @config = "#{@home}/config"
           @bin = "#{@home}/bin"
-
-          # Run config script if alchemy-setup doesn't exist
-          unless File.exists? @alchemy_setup
-            project_dir = Dir.getwd
-            ENV["PATH"] = "#{ENV["PATH"]}:#{flex_sdk.bin}"
-            Dir.chdir @home
-            system("sh ./config")
-            Dir.chdir project_dir
-          end
-
+          @swfbridge = Buildr::Util.win_os? ? "#{@bin}/swfbridge.exe" : "#{@bin}/swfbridge"
         end
+
+        def get_alchemy_toolkit_subfolder(system)
+          if system == "win"
+            folder = "alchemy-cygwin-v0.5a"
+          else
+            folder = "alchemy-darwin-v0.5a"
+          end
+          folder
+        end
+
+        def get_alchemy_toolkit_url(system)
+          if system == "win"
+            url = "http://download.macromedia.com/pub/labs/alchemy/alchemy_sdk_cygwin_p1_121008.zip"
+          else
+            url = "http://download.macromedia.com/pub/labs/alchemy/alchemy_sdk_darwin_p1_121008.zip"
+          end
+          url
+        end
+
       end
 
       module Compiler
@@ -81,7 +150,7 @@ module Buildr
           include Buildr::AS3::Compiler::CompilerUtils
 
           def compile(sources, target, dependencies)
-            alchemy_tk = options[:alchemy]
+            alchemy_tk = options[:alchemy].invoke
             flex_sdk = alchemy_tk.flex_sdk
             output = Buildr::AS3::Compiler::CompilerUtils::get_output(project, target, :swc, options)
 
@@ -101,10 +170,11 @@ module Buildr
             unless Buildr.application.options.dryrun
               ENV["ALCHEMY_HOME"]= alchemy_tk.home
               ENV["ALCHEMY_VER"] = "0.4a"
-              ENV["PATH"] = "#{alchemy_tk.bin}:#{ENV["PATH"]}"
+              ENV["PATH"] = "#{alchemy_tk.bin}#{File::PATH_SEPARATOR}#{ENV["PATH"]}"
               ENV["ASC"]="#{alchemy_tk.home}/bin/asc.jar"
-              ENV["SWFBRIDGE"]="#{alchemy_tk.home}/bin/swfbridge"
-              ENV["PATH"] = "#{alchemy_tk.achacks}:#{ENV["PATH"]}"
+              ENV["ADL"]=alchemy_tk.flex_sdk.adl
+              ENV["SWFBRIDGE"]=alchemy_tk.swfbridge
+              ENV["PATH"] = "#{alchemy_tk.achacks}#{File::PATH_SEPARATOR}#{ENV["PATH"]}"
               ENV["PATH"] = "#{ENV["PATH"]}:#{flex_sdk.bin}"
               project_dir = Dir.getwd
               Dir.chdir File.dirname options[:main]
