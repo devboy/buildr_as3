@@ -75,6 +75,15 @@ module Buildr
           file_mtimes.reverse!
           file_mtimes.length > 0 ? file_mtimes.first : Time.at(0)
         end
+
+        def move_dependency_dirs_to_source( sources, dependencies )
+          dependencies.each do |dependency|
+            if File.directory? dependency
+              dependencies.delete dependency
+              sources << dependency
+            end
+          end
+        end
       end
 
       class Mxmlc < Buildr::Compiler::Base
@@ -95,14 +104,15 @@ module Buildr
         def compile(sources, target, dependencies)
           flex_sdk = options[:flexsdk].invoke
           output = CompilerUtils::get_output(project, target, :swf, options)
-
+          move_dependency_dirs_to_source( sources, dependencies)
           cmd_args = []
           cmd_args << "-jar" << flex_sdk.mxmlc_jar
           cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
           cmd_args << options[:main]
           cmd_args << "-output" << output
           cmd_args << "-load-config" << flex_sdk.flex_config
-          cmd_args << "-source-path" << sources.join(" ")
+          sources.each {|source| cmd_args << "-source-path+=#{source}"}
+#          cmd_args << "-source-path" << sources.join(" ")
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
           options[:debug] = Buildr.options.debug.to_s
           reserved = [:flexsdk, :main, :apparat]
@@ -139,7 +149,7 @@ module Buildr
         def compile(sources, target, dependencies)
           flex_sdk = options[:flexsdk].invoke
           output = CompilerUtils::get_output(project, target, :swf, options)
-
+          move_dependency_dirs_to_source( sources, dependencies)
           cmd_args = []
           cmd_args << "-jar" << flex_sdk.mxmlc_jar
           cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
@@ -147,7 +157,7 @@ module Buildr
           cmd_args << options[:main]
           cmd_args << "-output" << output
           cmd_args << "-load-config" << flex_sdk.air_config
-          cmd_args << "-source-path" << sources.join(" ")
+          sources.each {|source| cmd_args << "-source-path+=#{source}"}
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
           options[:debug] = Buildr.options.debug.to_s
           reserved = [:flexsdk, :main, :apparat]
@@ -182,12 +192,13 @@ module Buildr
         def compile(sources, target, dependencies)
           flex_sdk = options[:flexsdk].invoke
           output = CompilerUtils::get_output(project, target, :swc, options)
+          move_dependency_dirs_to_source( sources, dependencies)
           cmd_args = []
           cmd_args << "-jar" << flex_sdk.compc_jar
           cmd_args << "-output" << output
           cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
           cmd_args << "-load-config" << flex_sdk.flex_config
-          cmd_args << "-include-sources" << sources.join(" ")
+          sources.each {|source| cmd_args << "-include-sources+=#{source}"}
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
           reserved = [:flexsdk, :main, :apparat]
           options[:debug] = Buildr.options.debug.to_s
@@ -222,13 +233,14 @@ module Buildr
         def compile(sources, target, dependencies)
           flex_sdk = options[:flexsdk].invoke
           output = CompilerUtils::get_output(project, target, :swc, options)
+          move_dependency_dirs_to_source( sources, dependencies)
           cmd_args = []
           cmd_args << "-jar" << flex_sdk.compc_jar
           cmd_args << "-output" << output
           cmd_args << "-load-config" << flex_sdk.air_config
           cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
           cmd_args << "+configname" << "air"
-          cmd_args << "-include-sources" << sources.join(" ")
+          sources.each {|source| cmd_args << "-include-sources+=#{source}"}
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
           options[:debug] = Buildr.options.debug.to_s
           reserved = [:flexsdk, :main, :apparat]

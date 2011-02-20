@@ -40,12 +40,6 @@ module Buildr
         def invoke
           @url ||= get_alchemy_toolkit_url(@system)
 
-#          if @url
-#            Buildr.artifact(@spec).from(Buildr.download(@url)).invoke unless File.exists? @alchemy_zip.to_s
-#          else
-#            Buildr.artifact(@spec).invoke unless File.exists? @alchemy_zip.to_s
-#          end
-
           if Buildr::Util.win_os?
             unless File.exists? @alchemy_zip.to_s
               FileUtils.mkdir_p File.dirname(@alchemy_zip.to_s) unless File.directory? File.dirname(@alchemy_zip.to_s)

@@ -93,7 +93,7 @@ module Buildr
           end
 
           def create_fdt4_dependency_symlink(project, dependency)
-            case source
+            case dependency
               when Buildr::Artifact then
                 path = dependency.name
               else

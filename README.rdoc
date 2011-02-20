@@ -4,6 +4,10 @@
 
 = Changelog
 
+== 0.1.19
+
+* [FEATURE] compile.with now works with directories, which allows to use other as3-source-folders to be referenced in your project.
+
 == 0.1.18
 
 * [FIXED] Fixed a bug in as3:fdt4:generate, which would overwrite files with a symlink to itself.
