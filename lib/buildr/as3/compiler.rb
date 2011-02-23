@@ -25,6 +25,19 @@ module Buildr
   module AS3
     module Compiler
       module CompilerUtils
+
+        def reserved_options
+          [:flexsdk, :main, :apparat, :output, :append]
+        end
+
+        def append_args( cmd_args, append_args )
+          unless append_args.nil? || append_args.empty?
+            append_args.each do |arg|
+              cmd_args << arg
+            end
+          end
+        end
+
         def self.get_output(project, target, package, options)
           return options[:output] if options.has_key? :output
           return "#{target}/#{File.basename(options[:main].to_s, File.extname(options[:main].to_s))}.swf" if package == :swf
@@ -77,11 +90,15 @@ module Buildr
         end
 
         def move_dependency_dirs_to_source( sources, dependencies )
+          moves = []
           dependencies.each do |dependency|
             if File.directory? dependency
-              dependencies.delete dependency
-              sources << dependency
+              moves << dependency
             end
+          end
+          moves.each do |move|
+            dependencies.delete move
+            sources << move
           end
         end
       end
@@ -102,6 +119,7 @@ module Buildr
         include CompilerUtils
 
         def compile(sources, target, dependencies)
+          puts dependencies.join("\n")
           flex_sdk = options[:flexsdk].invoke
           output = CompilerUtils::get_output(project, target, :swf, options)
           move_dependency_dirs_to_source( sources, dependencies)
@@ -111,12 +129,12 @@ module Buildr
           cmd_args << options[:main]
           cmd_args << "-output" << output
           cmd_args << "-load-config" << flex_sdk.flex_config
+          append_args(cmd_args,options[:append])
           sources.each {|source| cmd_args << "-source-path+=#{source}"}
 #          cmd_args << "-source-path" << sources.join(" ")
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
           options[:debug] = Buildr.options.debug.to_s
-          reserved = [:flexsdk, :main, :apparat]
-          options.to_hash.reject { |key, value| reserved.include?(key) }.
+          options.to_hash.reject { |key, value| reserved_options.include?(key) }.
               each do |key, value|
             cmd_args << "-#{key}=#{value}"
           end
@@ -124,6 +142,7 @@ module Buildr
             cmd_args << "-#{key}=#{value}"
           end
 
+          puts "args:", cmd_args
           unless Buildr.application.options.dryrun
             Java::Commands.java cmd_args
           end
@@ -160,8 +179,7 @@ module Buildr
           sources.each {|source| cmd_args << "-source-path+=#{source}"}
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
           options[:debug] = Buildr.options.debug.to_s
-          reserved = [:flexsdk, :main, :apparat]
-          options.to_hash.reject { |key, value| reserved.include?(key) }.
+          options.to_hash.reject { |key, value| reserved_options.include?(key) }.
               each do |key, value|
             cmd_args << "-#{key}=#{value}"
           end
@@ -200,9 +218,8 @@ module Buildr
           cmd_args << "-load-config" << flex_sdk.flex_config
           sources.each {|source| cmd_args << "-include-sources+=#{source}"}
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
-          reserved = [:flexsdk, :main, :apparat]
           options[:debug] = Buildr.options.debug.to_s
-          options.to_hash.reject { |key, value| reserved.include?(key) }.
+          options.to_hash.reject { |key, value| reserved_options.include?(key) }.
               each do |key, value|
             cmd_args << "-#{key}=#{value}"
           end
@@ -243,14 +260,14 @@ module Buildr
           sources.each {|source| cmd_args << "-include-sources+=#{source}"}
           cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
           options[:debug] = Buildr.options.debug.to_s
-          reserved = [:flexsdk, :main, :apparat]
-          options.to_hash.reject { |key, value| reserved.include?(key) }.
+          options.to_hash.reject { |key, value| reserved_options.include?(key) }.
               each do |key, value|
             cmd_args << "-#{key}=#{value}"
           end
           flex_sdk.default_options.each do |key, value|
             cmd_args << "-#{key}=#{value}"
           end
+
 
           unless Buildr.application.options.dryrun
             Java::Commands.java cmd_args

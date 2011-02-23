@@ -127,8 +127,6 @@ module Buildr
             cmd_args << "-#{key} #{value}"
           end
           ENV["PATH"] = "#{apparat_tk.scala_home}/bin#{File::PATH_SEPARATOR}#{ENV["PATH"]}" if apparat_tk.scala_home && !ENV["PATH"].include?("#{apparat_tk.scala_home}/bin")
-#          puts "path:", ENV["PATH"]
-#          puts "tdsi:",cmd_args.join(" "), system(cmd_args.join " ")
           system(cmd_args.join " ")
         end
 
