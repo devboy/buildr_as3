@@ -18,7 +18,7 @@ Jeweler::Tasks.new do |gem|
   gem.description = "Build like you code - now supporting ActionScript 3 & Flex"
   gem.email = "dominic @nospam@ devboy.org"
   gem.authors = ["Dominic Graefen"]
-  gem.add_runtime_dependency("buildr",">=1.4.4")
+  gem.add_runtime_dependency("buildr",">=1.4.5")
 end
 Jeweler::RubygemsDotOrgTasks.new
 
