@@ -30,33 +30,14 @@ require 'buildr/packaging'
 module Buildr
   module Compiler
 
-    OPTIONS = [:warnings, :debug, :other, :flexsdk, :apparat, :main]
+    class FlexCompilerBase < Base #:nodoc:
 
-    # Mxmlc compiler:
-    #   compile.using(:mxmlc)
-    # Used by default if .as or .mxmlc files are found in the src/main/as3 directory (or src/test/as3)
-    # and sets the target directory to target/bin (or target/test/bin).
-    #
-    # Accepts the following options:
-    # * :warnings    -- Issue warnings when compiling.  True when running in verbose mode.
-    # * :debug       -- Generates bytecode with debugging information.  Set from the debug
-    # environment variable/global option.
-    # * :flexsdk     -- Specify an FlexSDK Artifact of the type Buildr::AS3::Flex::FlexSDK
-    # * :apparat     -- Specify an Apparat Artifact of the type Buildr::AS3::Apparat::ApparatToolkit
-    # (this is only necessary if you want to make use of the apparat-toolkit)
-    # * :other       -- Array of options passed to the compiler
-    # (e.g. ['-compiler.incremental=true', '-static-link-runtime-shared-libraries=true', '-optimize'])
-    class Mxmlc < Base
-
-      specify :language => :actionscript,
-              :sources => [:as3, :mxml], :source_ext => [:as, :mxml],
-              :target => "bin", :target_ext => "swf",
-              :packaging => :swf
+      OPTIONS = [:warnings, :debug, :other, :flexsdk, :apparat, :main]
 
       def initialize(project, options) #:nodoc:
         super
         options[:debug] = Buildr.options.debug if options[:debug].nil?
-        options[:warnings] ||= false
+        options[:warnings] ||= true
       end
 
       def compile(sources, target, dependencies) #:nodoc:
@@ -64,35 +45,98 @@ module Buildr
         flex_sdk = options[:flexsdk].invoke
         output = "#{target}/output.swf"
         cmd_args = []
-        cmd_args << "-jar" << flex_sdk.mxmlc_jar
+        cmd_args << "-jar" << @compiler_jar
         cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
-        cmd_args << options[:main]
         cmd_args << "-output" << output
         cmd_args << "-load-config" << flex_sdk.flex_config
-        sources.each {|source| cmd_args << "-source-path+=#{source}"}
-        cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
-        cmd_args += mxmlc_args
+        cmd_args += generate_source_args sources
+        cmd_args += generate_dependency_args dependencies
+        cmd_args += flex_compiler_args
         unless Buildr.application.options.dryrun
           trace(cmd_args.join(' '))
           Java::Commands.java cmd_args
         end
       end
 
-    private
+      private
 
-      def mxmlc_args #:nodoc:
+      def flex_compiler_args #:nodoc:
         args = []
-        if options[:warnings]
-          args << '-warnings=true'
-        else
-          args << '-warnings=false'
-        end
-        if options[:debug]
-          args << '-debug=true'
-        else
-          args << '-debug=false'
-        end
+        args << '-warnings=false' unless options[:warnings]
+        args << '-debug=true' if options[:debug]
         args + Array(options[:other]) + Array(options[:flexsdk].default_options)
+      end
+
+    end
+
+    # Mxmlc compiler:
+    #   compile.using(:mxmlc)
+    # Used by default if .as or .mxmlc files are found in the src/main/as3 directory (or src/test/as3)
+    # and sets the target directory to target/bin (or target/test/bin).
+    #
+    # Accepts the following options:
+    # * :warnings    -- Issue warnings when compiling.  Defaults to "true"
+    # * :debug       -- Generates bytecode with debugging information.  Set from the debug
+    # environment variable/global option.
+    # * :flexsdk     -- Specify an FlexSDK Artifact of the type Buildr::AS3::Flex::FlexSDK
+    # * :apparat     -- Specify an Apparat Artifact of the type Buildr::AS3::Apparat::ApparatToolkit
+    # (this is only necessary if you want to make use of the apparat-toolkit)
+    # * :other       -- Array of options passed to the compiler
+    # (e.g. ['-compiler.incremental=true', '-static-link-runtime-shared-libraries=true', '-optimize'])
+    class Mxmlc < FlexCompilerBase
+
+      specify :language => :actionscript,
+              :sources => [:as3, :mxml], :source_ext => [:as, :mxml],
+              :target => "bin", :target_ext => "swf",
+              :packaging => :swf
+
+      def compile(sources, target, dependencies)
+        @compiler_jar = options[:flexsdk].mxmlc_jar
+        options[:other] = [] if options[:other].nil?
+        options[:other] << options[:main]
+        super
+      end
+
+      private
+
+      def generate_source_args(sources)
+        source_args = []
+        sources.each {|source| source_args << "-source-path+=#{source}"}
+        source_args
+      end
+
+      def generate_dependency_args(dependencies)
+        dependency_args = []
+        dependencies.each {|source| dependency_args << "-library-path+=#{source}"}
+        dependency_args
+      end
+
+    end
+
+    class Compc < FlexCompilerBase
+
+      specify :language => :actionscript,
+              :sources => [:as3, :mxml], :source_ext => [:as, :mxml],
+              :target => "bin", :target_ext => "swc",
+              :packaging => :swc
+
+      def compile(sources, target, dependencies)
+        @compiler_jar = options[:flexsdk].compc_jar
+        super
+      end
+
+      private
+
+      def generate_source_args(sources)
+        source_args = []
+        sources.each {|source| source_args << "-include-sources+=#{source}"}
+        source_args
+      end
+
+      def generate_dependency_args(dependencies)
+        dependency_args = []
+        dependencies.each {|source| dependency_args << "-library-path+=#{source}"}
+        dependency_args
       end
 
     end
@@ -102,3 +146,4 @@ module Buildr
 end
 
 Buildr::Compiler << Buildr::Compiler::Mxmlc
+Buildr::Compiler << Buildr::Compiler::Compc

@@ -25,38 +25,38 @@ require "ftools"
 
 module Buildr
     module Packaging
-#      class SwcTask < Rake::FileTask
-#
-#        include Extension
-#        include Buildr::AS3::Compiler::CompilerUtils
-#
-#        attr_writer :target_swc, :src_swc
-#        attr_reader :target_swc, :src_swc
-#
-#        def initialize(*args) #:nodoc:
-#          super
-#          enhance do
-#            fail "File not found: #{src_swc}" unless File.exists? src_swc
-#            File.copy(src_swc, target_swc)
-#          end
-#        end
-#
-#        def needed?
+      class SwcTask < Rake::FileTask
+
+        include Extension
+
+        attr_writer :target_swc, :src_swc
+        attr_reader :target_swc, :src_swc
+
+        def initialize(*args) #:nodoc:
+          super
+          enhance do
+            fail "File not found: #{src_swc}" unless File.exists? src_swc
+            File.copy(src_swc, target_swc)
+          end
+        end
+
+        def needed?
+          super
 #          is_output_outdated? target_swc, src_swc
-#        end
-#
-#        first_time do
-#          desc 'create swc package task'
-#          Project.local_task('package_swc')
-#        end
-#
-#        before_define do |project|
-#          SwcTask.define_task('package_swc').tap do |package_swc|
-#            package_swc
-#          end
-#        end
-#
-#      end
+        end
+
+        first_time do
+          desc 'create swc package task'
+          Project.local_task('package_swc')
+        end
+
+        before_define do |project|
+          SwcTask.define_task('package_swc').tap do |package_swc|
+            package_swc
+          end
+        end
+
+      end
 
       class SwfTask < Rake::FileTask
 
@@ -166,9 +166,9 @@ module Buildr
 #
 #      end
 
-#      def package_swc(&block)
-#        task("package_swc").enhance &block
-#      end
+      def package_swc(&block)
+        task("package_swc").enhance &block
+      end
 
       def package_swf(&block)
         task("package_swf").enhance &block
@@ -180,13 +180,13 @@ module Buildr
 
       protected
 
-#      def package_as_swc(file_name)
-#        fail("Package types don't match! :swc vs. :#{compile.packaging.to_s}") unless compile.packaging == :swc
-#        SwcTask.define_task(file_name).tap do |swc|
-#          swc.src_swc = Buildr::AS3::Compiler::CompilerUtils::get_output(project, compile.target, :swc, compile.options)
-#          swc.target_swc = file_name
-#        end
-#      end
+      def package_as_swc(file_name)
+        fail("Package types don't match! :swc vs. :#{compile.packaging.to_s}") unless compile.packaging == :swc
+        SwcTask.define_task(file_name).tap do |swc|
+          swc.src_swc = "#{compile.target}/output.swc"
+          swc.target_swc = file_name
+        end
+      end
 
       def package_as_swf(file_name)
         fail("Package types don't match! :swf vs. :#{compile.packaging.to_s}") unless compile.packaging == :swf
