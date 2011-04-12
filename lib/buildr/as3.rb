@@ -22,11 +22,11 @@
 require "#{File.dirname(__FILE__)}/as3/compiler"
 require "#{File.dirname(__FILE__)}/as3/packaging"
 require "#{File.dirname(__FILE__)}/as3/flexsdk"
-require "#{File.dirname(__FILE__)}/as3/doc"
-require "#{File.dirname(__FILE__)}/as3/alchemy"
-require "#{File.dirname(__FILE__)}/as3/apparat"
+#require "#{File.dirname(__FILE__)}/as3/doc"
+#require "#{File.dirname(__FILE__)}/as3/alchemy"
+#require "#{File.dirname(__FILE__)}/as3/apparat"
 require "#{File.dirname(__FILE__)}/as3/ide/fdt4"
-require "#{File.dirname(__FILE__)}/as3/tests"
+#require "#{File.dirname(__FILE__)}/as3/tests"
 include Buildr::AS3::Flex
-include Buildr::AS3::Apparat
-include Buildr::AS3::Alchemy
+#include Buildr::AS3::Apparat
+#include Buildr::AS3::Alchemy

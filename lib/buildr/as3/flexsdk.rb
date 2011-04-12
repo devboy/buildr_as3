@@ -35,7 +35,7 @@ module Buildr
 
         def initialize(version)
           @version = version
-          @default_options = {}
+          @default_options = []
           @spec = "com.adobe.flex:sdk:zip:#{@version}"
           @sdk_zip = Buildr.artifact(@spec)
           @sdk_dir = File.join(File.dirname(@sdk_zip.to_s), "sdk-#{@version}")

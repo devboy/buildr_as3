@@ -19,265 +19,86 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-#TODO: Refactor compiler classes, right now everything is copy&paste
+
+require 'rubygems'
+require 'buildr/core/project'
+require 'buildr/core/common'
+require 'buildr/core/compile'
+require 'buildr/packaging'
+
 
 module Buildr
-  module AS3
-    module Compiler
-      module CompilerUtils
+  module Compiler
 
-        def reserved_options
-          [:flexsdk, :main, :apparat, :output, :append]
-        end
+    OPTIONS = [:warnings, :debug, :other, :flexsdk, :apparat, :main]
 
-        def append_args( cmd_args, append_args )
-          unless append_args.nil? || append_args.empty?
-            append_args.each do |arg|
-              cmd_args << arg
-            end
-          end
-        end
+    # Mxmlc compiler:
+    #   compile.using(:mxmlc)
+    # Used by default if .as or .mxmlc files are found in the src/main/as3 directory (or src/test/as3)
+    # and sets the target directory to target/bin (or target/test/bin).
+    #
+    # Accepts the following options:
+    # * :warnings    -- Issue warnings when compiling.  True when running in verbose mode.
+    # * :debug       -- Generates bytecode with debugging information.  Set from the debug
+    # environment variable/global option.
+    # * :flexsdk     -- Specify an FlexSDK Artifact of the type Buildr::AS3::Flex::FlexSDK
+    # * :apparat     -- Specify an Apparat Artifact of the type Buildr::AS3::Apparat::ApparatToolkit
+    # (this is only necessary if you want to make use of the apparat-toolkit)
+    # * :other       -- Array of options passed to the compiler
+    # (e.g. ['-compiler.incremental=true', '-static-link-runtime-shared-libraries=true', '-optimize'])
+    class Mxmlc < Base
 
-        def self.get_output(project, target, package, options)
-          return options[:output] if options.has_key? :output
-          return "#{target}/#{File.basename(options[:main].to_s, File.extname(options[:main].to_s))}.swf" if package == :swf
-          return "#{target}/#{project.name.gsub(":", "-")}.swc" if package == :swc
-          fail("Could not guess output file.")
-        end
+      specify :language => :actionscript,
+              :sources => [:as3, :mxml], :source_ext => [:as, :mxml],
+              :target => "bin", :target_ext => "swf",
+              :packaging => :swf
 
-        def needed?(sources, target, dependencies)
-          output = CompilerUtils::get_output(project, target, project.compile.packaging, options)
-          sources.each do |source|
-            if is_output_outdated?(output, source)
-              puts "Recompile of #{project.name} needed: Sources are newer than target"
-              return true
-            end
-          end
-          dependencies.each do |dependency|
-            if is_output_outdated?(output, dependency)
-              puts "Recompile of #{project.name} needed: Dependencies are newer than target"
-              return true
-            end
-          end
-          puts "Recompile of #{project.name} not needed."
-          false
-        end
+      def initialize(project, options) #:nodoc:
+        super
+        options[:debug] = Buildr.options.debug if options[:debug].nil?
+        options[:warnings] ||= false
+      end
 
-        def is_output_outdated?(output, file_to_check)
-          return true unless File.exists? output
-          older(output, file_to_check)
-        end
-
-        def older(a, b) # a older than b
-          timestamp_from_file(a) < timestamp_from_file(b)
-        end
-
-        def timestamp_from_file(file)
-          File.directory?(file) ? get_last_modified(file) : File.mtime(file)
-        end
-
-        def get_last_modified(dir)
-          file_mtimes = []
-          dirs = Dir.new(dir).select { |file| file!= '.' && file!='..' && File.directory?(dir+"/"+file)==true }
-          dirs = dirs.collect { |subdir| dir+"/"+subdir }
-          dirs.each { |subdir| file_mtimes << get_last_modified(subdir) }
-          files = Dir.new(dir).select { |file| file!= '.' && file!='..' && File.directory?(dir+"/"+file)==false }
-          files = files.collect { |file| dir+'/'+file }
-          files.each { |file| file_mtimes << File.mtime(file) }
-          file_mtimes.sort!
-          file_mtimes.reverse!
-          file_mtimes.length > 0 ? file_mtimes.first : Time.at(0)
-        end
-
-        def move_dependency_dirs_to_source( sources, dependencies )
-          moves = []
-          dependencies.each do |dependency|
-            if File.directory? dependency
-              moves << dependency
-            end
-          end
-          moves.each do |move|
-            dependencies.delete move
-            sources << move
-          end
+      def compile(sources, target, dependencies) #:nodoc:
+        check_options options, OPTIONS
+        flex_sdk = options[:flexsdk].invoke
+        output = "#{target}/output.swf"
+        cmd_args = []
+        cmd_args << "-jar" << flex_sdk.mxmlc_jar
+        cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
+        cmd_args << options[:main]
+        cmd_args << "-output" << output
+        cmd_args << "-load-config" << flex_sdk.flex_config
+        sources.each {|source| cmd_args << "-source-path+=#{source}"}
+        cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
+        cmd_args += mxmlc_args
+        unless Buildr.application.options.dryrun
+          trace(cmd_args.join(' '))
+          Java::Commands.java cmd_args
         end
       end
 
-      class Mxmlc < Buildr::Compiler::Base
-        specify :language => :actionscript,
-                :sources => [:as3, :mxml], :source_ext => [:as, :mxml],
-                :target => "bin", :target_ext => "swf",
-                :packaging => :swf
+    private
 
-        attr_reader :project
-
-        def initialize(project, options)
-          super
-          @project = project
+      def mxmlc_args #:nodoc:
+        args = []
+        if options[:warnings]
+          args << '-warnings=true'
+        else
+          args << '-warnings=false'
         end
-
-        include CompilerUtils
-
-        def compile(sources, target, dependencies)
-          puts dependencies.join("\n")
-          flex_sdk = options[:flexsdk].invoke
-          output = CompilerUtils::get_output(project, target, :swf, options)
-          move_dependency_dirs_to_source( sources, dependencies)
-          cmd_args = []
-          cmd_args << "-jar" << flex_sdk.mxmlc_jar
-          cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
-          cmd_args << options[:main]
-          cmd_args << "-output" << output
-          cmd_args << "-load-config" << flex_sdk.flex_config
-          append_args(cmd_args,options[:append])
-          sources.each {|source| cmd_args << "-source-path+=#{source}"}
-#          cmd_args << "-source-path" << sources.join(" ")
-          cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
-          options[:debug] = Buildr.options.debug.to_s
-          options.to_hash.reject { |key, value| reserved_options.include?(key) }.
-              each do |key, value|
-            cmd_args << "-#{key}=#{value}"
-          end
-          flex_sdk.default_options.each do |key, value|
-            cmd_args << "-#{key}=#{value}"
-          end
-
-          puts "args:", cmd_args
-          unless Buildr.application.options.dryrun
-            Java::Commands.java cmd_args
-          end
+        if options[:debug]
+          args << '-debug=true'
+        else
+          args << '-debug=false'
         end
+        args + Array(options[:other]) + Array(options[:flexsdk].default_options)
       end
 
-      class AirMxmlc < Buildr::Compiler::Base
-
-        specify :language => :actionscript,
-                :sources => [:as3, :mxml], :source_ext => [:as, :mxml],
-                :target => "bin", :target_ext => "swf",
-                :packaging => :swf
-
-        attr_reader :project
-
-        def initialize(project, options)
-          super
-          @project = project
-        end
-
-        include CompilerUtils
-
-        def compile(sources, target, dependencies)
-          flex_sdk = options[:flexsdk].invoke
-          output = CompilerUtils::get_output(project, target, :swf, options)
-          move_dependency_dirs_to_source( sources, dependencies)
-          cmd_args = []
-          cmd_args << "-jar" << flex_sdk.mxmlc_jar
-          cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
-          cmd_args << "+configname" << "air"
-          cmd_args << options[:main]
-          cmd_args << "-output" << output
-          cmd_args << "-load-config" << flex_sdk.air_config
-          sources.each {|source| cmd_args << "-source-path+=#{source}"}
-          cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
-          options[:debug] = Buildr.options.debug.to_s
-          options.to_hash.reject { |key, value| reserved_options.include?(key) }.
-              each do |key, value|
-            cmd_args << "-#{key}=#{value}"
-          end
-          flex_sdk.default_options.each do |key, value|
-            cmd_args << "-#{key}=#{value}"
-          end
-
-          unless Buildr.application.options.dryrun
-            Java::Commands.java cmd_args
-          end
-        end
-      end
-
-      class Compc < Buildr::Compiler::Base
-        specify :language => :actionscript,
-                :sources => [:as3, :mxml], :source_ext => [:as, :mxml],
-                :target => "bin", :target_ext => "swc",
-                :packaging => :swc
-        attr_reader :project
-
-        def initialize(project, options)
-          super
-          @project = project
-        end
-
-        include CompilerUtils
-
-        def compile(sources, target, dependencies)
-          flex_sdk = options[:flexsdk].invoke
-          output = CompilerUtils::get_output(project, target, :swc, options)
-          move_dependency_dirs_to_source( sources, dependencies)
-          cmd_args = []
-          cmd_args << "-jar" << flex_sdk.compc_jar
-          cmd_args << "-output" << output
-          cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
-          cmd_args << "-load-config" << flex_sdk.flex_config
-          sources.each {|source| cmd_args << "-include-sources+=#{source}"}
-          cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
-          options[:debug] = Buildr.options.debug.to_s
-          options.to_hash.reject { |key, value| reserved_options.include?(key) }.
-              each do |key, value|
-            cmd_args << "-#{key}=#{value}"
-          end
-          flex_sdk.default_options.each do |key, value|
-            cmd_args << "-#{key}=#{value}"
-          end
-
-          unless Buildr.application.options.dryrun
-            Java::Commands.java cmd_args
-          end
-        end
-      end
-
-      class AirCompc < Buildr::Compiler::Base
-        specify :language => :actionscript,
-                :sources => [:as3, :mxml], :source_ext => [:as, :mxml],
-                :target => "bin", :target_ext => "swc",
-                :packaging => :swc
-        attr_reader :project
-
-        def initialize(project, options)
-          super
-          @project = project
-        end
-
-        include CompilerUtils
-
-        def compile(sources, target, dependencies)
-          flex_sdk = options[:flexsdk].invoke
-          output = CompilerUtils::get_output(project, target, :swc, options)
-          move_dependency_dirs_to_source( sources, dependencies)
-          cmd_args = []
-          cmd_args << "-jar" << flex_sdk.compc_jar
-          cmd_args << "-output" << output
-          cmd_args << "-load-config" << flex_sdk.air_config
-          cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
-          cmd_args << "+configname" << "air"
-          sources.each {|source| cmd_args << "-include-sources+=#{source}"}
-          cmd_args << "-library-path+=#{dependencies.join(",")}" unless dependencies.empty?
-          options[:debug] = Buildr.options.debug.to_s
-          options.to_hash.reject { |key, value| reserved_options.include?(key) }.
-              each do |key, value|
-            cmd_args << "-#{key}=#{value}"
-          end
-          flex_sdk.default_options.each do |key, value|
-            cmd_args << "-#{key}=#{value}"
-          end
-
-
-          unless Buildr.application.options.dryrun
-            Java::Commands.java cmd_args
-          end
-        end
-      end
     end
+
   end
+
 end
-Buildr::Compiler.compilers << Buildr::AS3::Compiler::Mxmlc
-Buildr::Compiler.compilers << Buildr::AS3::Compiler::Compc
-Buildr::Compiler.compilers << Buildr::AS3::Compiler::AirMxmlc
-Buildr::Compiler.compilers << Buildr::AS3::Compiler::AirCompc
+
+Buildr::Compiler << Buildr::Compiler::Mxmlc
