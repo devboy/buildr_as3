@@ -19,6 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
+
 require "#{File.dirname(__FILE__)}/as3/compiler"
 require "#{File.dirname(__FILE__)}/as3/packaging"
 require "#{File.dirname(__FILE__)}/as3/flexsdk"
