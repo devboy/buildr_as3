@@ -23,6 +23,10 @@
 require "#{File.dirname(__FILE__)}/compiler/base"
 require "#{File.dirname(__FILE__)}/compiler/mxmlc"
 require "#{File.dirname(__FILE__)}/compiler/compc"
+require "#{File.dirname(__FILE__)}/compiler/airmxmlc"
+require "#{File.dirname(__FILE__)}/compiler/aircompc"
 
 Buildr::Compiler << Buildr::AS3::Compiler::Mxmlc
 Buildr::Compiler << Buildr::AS3::Compiler::Compc
+Buildr::Compiler << Buildr::AS3::Compiler::AirMxmlc
+Buildr::Compiler << Buildr::AS3::Compiler::AirCompc

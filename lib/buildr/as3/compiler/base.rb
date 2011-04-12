@@ -43,6 +43,7 @@ module Buildr
           cmd_args << "-jar" << @compiler_jar
           cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
           cmd_args << "-output" << output
+          cmd_args << "+configname=air" if @air
           cmd_args << "-load-config" << flex_sdk.flex_config
           cmd_args += generate_source_args sources
           cmd_args += generate_dependency_args dependencies
