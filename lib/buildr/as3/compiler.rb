@@ -20,9 +20,9 @@
 # THE SOFTWARE.
 #
 
-require "compiler/base"
-require "compiler/mxmlc"
-require "compiler/compc"
+require "#{File.dirname(__FILE__)}/compiler/base"
+require "#{File.dirname(__FILE__)}/compiler/mxmlc"
+require "#{File.dirname(__FILE__)}/compiler/compc"
 
 Buildr::Compiler << Buildr::Compiler::Mxmlc
 Buildr::Compiler << Buildr::Compiler::Compc
