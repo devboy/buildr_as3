@@ -20,6 +20,8 @@
 # THE SOFTWARE.
 #
 
+require 'buildr/core/compile'
+
 module Buildr
   module AS3
     module Compiler

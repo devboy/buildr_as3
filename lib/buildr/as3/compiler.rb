@@ -24,5 +24,5 @@ require "#{File.dirname(__FILE__)}/compiler/base"
 require "#{File.dirname(__FILE__)}/compiler/mxmlc"
 require "#{File.dirname(__FILE__)}/compiler/compc"
 
-Buildr::Compiler << Buildr::Compiler::Mxmlc
-Buildr::Compiler << Buildr::Compiler::Compc
+Buildr::Compiler << Buildr::AS3::Compiler::Mxmlc
+Buildr::Compiler << Buildr::AS3::Compiler::Compc
