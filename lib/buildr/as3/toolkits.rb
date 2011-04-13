@@ -19,10 +19,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-require File.dirname(__FILE__)+"/packaging/swf"
-require File.dirname(__FILE__)+"/packaging/swc"
-require File.dirname(__FILE__)+"/packaging/air"
 
-class Buildr::Project
-  include Buildr::AS3::Packaging
-end
+require "#{File.dirname(__FILE__)}/toolkits/base"
+require "#{File.dirname(__FILE__)}/toolkits/flexsdk"
+require "#{File.dirname(__FILE__)}/toolkits/apparat"
+require "#{File.dirname(__FILE__)}/toolkits/alchemy"
+
+include Buildr::AS3::Toolkits

@@ -19,14 +19,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-require 'tmpdir'
-require "open-uri"
-require "fileutils"
 
 module Buildr
   module AS3
-    module Flex
-      class FlexSDK
+    module Toolkits
+      class FlexSDK < Buildr::AS3::Toolkits::ZipToolkiteBase
 
         attr_reader :home, :mxmlc_jar, :compc_jar, :asdoc_jar, :fcsh_jar, :flex_config,
                     :asdoc_templates, :default_options, :air_config, :bin, :adt_jar, :adl
@@ -37,58 +34,33 @@ module Buildr
           @version = version
           @default_options = []
           @spec = "com.adobe.flex:sdk:zip:#{@version}"
-          @sdk_zip = Buildr.artifact(@spec)
-          @sdk_dir = File.join(File.dirname(@sdk_zip.to_s), "sdk-#{@version}")
-          generate_paths @sdk_dir
+          @zip = Buildr.artifact(@spec)
+          @zip_destination = File.join(File.dirname(@zip.to_s), "sdk-#{@version}")
+          generate_paths @zip_destination
           self
         end
 
-        def invoke
+        def invoke #:nodoc:
           @url ||= generate_url_from_version @version
-
-          if Buildr::Util.win_os?
-            unless File.exists? @sdk_zip.to_s
-              FileUtils.mkdir_p File.dirname(@sdk_zip.to_s) unless File.directory? File.dirname(@sdk_zip.to_s)
-              File.open @sdk_zip.to_s, 'w' do |file|
-                file.binmode()
-                URI.read(@url, {:progress=>true}) { |chunk| file.write chunk }
-              end
-            end
-          else
-            Buildr.artifact(@spec).from(Buildr.download(@url)).invoke unless File.exists? @sdk_zip.to_s
-          end
-
-
-          unless File.exists? @sdk_dir
-            puts "Unzipping FlexSDK, this might take a while."
-            if Buildr::Util.win_os?
-              puts "Please make sure unzip is installed and in your PATH variable!"
-              unzip @sdk_zip, @sdk_dir
-            else
-              begin
-                Buildr.unzip(@sdk_dir.to_s=>@sdk_zip.to_s).target.invoke
-              rescue TypeError
-                puts "RubyZip extract failed, trying system unzip now."
-                unzip @sdk_zip, @sdk_dir
-              end
-            end
-          end
+          super
           self
         end
 
+        # :call-seq:
+        #   from(url) => self
+        #
+        # * You can pass a url where the FlexSDK should be downloaded from as a string:
+        # FLEX_SDK.from("http://domain.tld/flex_sdk.zip")
+        # * You can pass :maven as a parameter to download it from a maven repository:
+        # FLEX_SDK.from(:maven)
+        # * If you don't call this function at all, buildr-as3 will try and resolve a url on the adobe-website
+        # to download the FlexSDK
         def from(url)
           @url = url
           self
         end
 
-        protected
-
-        def unzip(zip, destination)
-          project_dir = Dir.getwd
-          Dir.chdir File.dirname(zip.to_s)
-          system("unzip #{File.basename(zip.to_s).to_s} -d #{File.basename(destination).to_s}")
-          Dir.chdir project_dir
-        end
+        private
 
         def generate_url_from_version(version)
           "http://fpdownload.adobe.com/pub/flex/sdk/builds/flex#{version.split(".")[0]}/flex_sdk_#{version}.zip"

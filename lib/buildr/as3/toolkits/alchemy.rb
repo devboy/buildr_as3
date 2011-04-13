@@ -19,10 +19,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
+
 module Buildr
   module AS3
-    module Alchemy
-      class AlchemyToolkit
+    module Toolkits
+      class AlchemyToolkit < Buildr::AS3::Toolkits::ZipToolkiteBase
 
         attr_reader :home, :achacks, :gcc, :flex_sdk, :alchemy_setup, :bin, :swfbridge
 
@@ -31,59 +32,19 @@ module Buildr
           @system = Buildr::Util.win_os? ? "win" : "unix"
           @spec = "com.adobe.alchemy:toolkit:zip:#{@system}:#{@version}"
           @flex_sdk = flex_sdk
-          @alchemy_zip = Buildr.artifact(@spec)
-          @alchemy_dir = File.join(File.dirname(@alchemy_zip.to_s), "alchemy-#{@system}-#{@version}", get_alchemy_toolkit_subfolder(@system) )
-          generate_paths @alchemy_dir
+          @zip = Buildr.artifact(@spec)
+          @zip_destination = File.join(File.dirname(@zip.to_s), "alchemy-#{@system}-#{@version}", get_alchemy_toolkit_subfolder(@system) )
+          generate_paths @zip_destination
           self
         end
 
         def invoke
-          @url ||= get_alchemy_toolkit_url(@system)
-
-          if Buildr::Util.win_os?
-            unless File.exists? @alchemy_zip.to_s
-              FileUtils.mkdir_p File.dirname(@alchemy_zip.to_s) unless File.directory? File.dirname(@alchemy_zip.to_s)
-              File.open @alchemy_zip.to_s, 'w' do |file|
-                file.binmode()
-                URI.read(@url, {:progress=>true}) { |chunk| file.write chunk }
-              end
-            end
-          else
-            Buildr.artifact(@spec).from(Buildr.download(@url)).invoke unless File.exists? @alchemy_zip.to_s
-          end
-
-          unless File.exists? @alchemy_dir
-            puts "Unzipping Alchemy, this might take a while."
-            unzip_dir = File.dirname @alchemy_dir
-            if Buildr::Util.win_os?
-              puts "Please make sure unzip is installed and in your PATH variable!"
-              unzip @alchemy_zip, unzip_dir
-            else
-              begin
-                Buildr.unzip(unzip_dir.to_s=>@alchemy_zip.to_s).target.invoke
-              rescue TypeError
-                puts "RubyZip extract failed, trying system unzip now."
-                unzip @alchemy_zip, unzip_dir
-              end
-            end
-          end
+          super
           setup unless File.exists? @alchemy_setup
           self
         end
 
-        def from(url)
-          @url = url
-          self
-        end
-
         protected
-
-        def unzip(zip, destination)
-          project_dir = Dir.getwd
-          Dir.chdir File.dirname(zip.to_s)
-          system("unzip #{File.basename(zip.to_s).to_s} -d #{File.basename(destination).to_s}")
-          Dir.chdir project_dir
-        end
 
         def setup
           project_dir = Dir.getwd
@@ -141,12 +102,12 @@ module Buildr
             @project = project
           end
 
-          include Buildr::AS3::Compiler::CompilerUtils
+#          include Buildr::AS3::Compiler::CompilerUtils
 
           def compile(sources, target, dependencies)
             alchemy_tk = options[:alchemy].invoke
             flex_sdk = alchemy_tk.flex_sdk
-            output = Buildr::AS3::Compiler::CompilerUtils::get_output(project, target, :swc, options)
+#            output = Buildr::AS3::Compiler::CompilerUtils::get_output(project, target, :swc, options)
 
             # gcc stringecho.c -O3 -Wall -swc -o stringecho.swc
             cmd_args = []
@@ -183,4 +144,4 @@ module Buildr
     end
   end
 end
-Buildr::Compiler.compilers << Buildr::AS3::Alchemy::Compiler::AlcGcc
+Buildr::Compiler.compilers << Buildr::AS3::Toolkits::Compiler::AlcGcc

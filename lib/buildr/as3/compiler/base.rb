@@ -27,7 +27,7 @@ module Buildr
     module Compiler
       class FlexCompilerBase < Buildr::Compiler::Base #:nodoc:
 
-        OPTIONS = [:warnings, :debug, :other, :flexsdk, :apparat]
+        COMPILE_OPTIONS = [:warnings, :debug, :other, :flexsdk, :apparat]
 
         def initialize(project, options) #:nodoc:
           super
@@ -35,8 +35,13 @@ module Buildr
           options[:warnings] ||= true
         end
 
+
+        def needed?(sources, target, dependencies)
+          super
+        end
+
         def compile(sources, target, dependencies) #:nodoc:
-          check_options options, OPTIONS
+          check_options options, COMPILE_OPTIONS
           flex_sdk = options[:flexsdk].invoke
           output = "#{target}/output.swf"
           cmd_args = []

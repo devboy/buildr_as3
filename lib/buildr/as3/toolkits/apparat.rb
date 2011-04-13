@@ -21,8 +21,8 @@
 #
 module Buildr
   module AS3
-    module Apparat
-      class ApparatToolkit
+    module Toolkits
+      class ApparatToolkit < Buildr::AS3::Toolkits::ZipToolkiteBase
         attr_reader :home, :asmifier, :concrete, :coverage, :dump,
                     :jitb, :reducer, :stripper, :tdsi, :asm_swc,
                     :ersatz_swc, :lzma_decoder_swc, :scala_home
@@ -30,56 +30,13 @@ module Buildr
         def initialize(version)
           @version = version
           @spec = "com.googlecode:apparat-bin:zip:#{@version}"
-          @apparat_zip = Buildr.artifact(@spec)
-          @apparat_dir = File.join(File.dirname(@apparat_zip.to_s), "apparat-bin-#{@version}", "apparat-#{@version}")
-          generate_paths @apparat_dir, @version
-        end
-
-        def invoke
-
-          if @url
-            Buildr.artifact(@spec).from(Buildr.download(@url)).invoke unless File.exists? @apparat_zip.to_s
-          else
-            Buildr.artifact(@spec).invoke unless File.exists? @apparat_zip.to_s
-          end
-
-          unless File.exists? @apparat_dir
-            puts "Unzipping Apparat, this might take a while."
-            unzip_dir = File.dirname @apparat_dir
-            if Buildr::Util.win_os?
-              puts "Please make sure unzip is installed and in your PATH variable!"
-              unzip @apparat_zip, unzip_dir
-            else
-              begin
-                Buildr.unzip(unzip_dir.to_s=>@apparat_zip.to_s).target.invoke
-              rescue TypeError
-                puts "RubyZip extract failed, trying system unzip now."
-                unzip @apparat_zip, unzip_dir
-              end
-            end
-          end
-          self
-        end
-
-        def from(url)
-          @url = url
-          self
-        end
-
-        def scala(scala_home)
-          @scala_home = scala_home
-          self
+          @zip = Buildr.artifact(@spec)
+          @zip_destination = File.join(File.dirname(@zip.to_s), "apparat-bin-#{@version}", "apparat-#{@version}")
+          generate_paths @zip, @version
         end
 
 
-        protected
-
-        def unzip(zip, destination)
-          project_dir = Dir.getwd
-          Dir.chdir File.dirname(zip.to_s)
-          system("unzip #{File.basename(zip.to_s).to_s} -d #{File.basename(destination).to_s}")
-          Dir.chdir project_dir
-        end
+        private
 
         def generate_paths(home_dir, version)
           @home = home_dir
@@ -100,7 +57,7 @@ module Buildr
         end
       end
 
-      module Tasks
+      module ApparatTasks
         include Extension
 
         first_time do
@@ -146,6 +103,6 @@ module Buildr
     end
   end
   class Project
-    include Buildr::AS3::Apparat::Tasks
+    include Buildr::AS3::Toolkits::ApparatTasks
   end
 end
