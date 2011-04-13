@@ -9,9 +9,11 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Dominic Graefen"]
-  s.date = %q{2011-02-23}
+  s.date = %q{2011-04-13}
+  s.default_executable = %q{buildr-as3}
   s.description = %q{Build like you code - now supporting ActionScript 3 & Flex}
   s.email = %q{dominic @nospam@ devboy.org}
+  s.executables = ["buildr-as3"]
   s.extra_rdoc_files = [
     "LICENSE.txt",
     "README.rdoc"
@@ -23,11 +25,17 @@ Gem::Specification.new do |s|
     "README.rdoc",
     "Rakefile",
     "VERSION",
+    "bin/buildr-as3",
     "buildr-as3.gemspec",
     "lib/buildr/as3.rb",
     "lib/buildr/as3/alchemy.rb",
     "lib/buildr/as3/apparat.rb",
     "lib/buildr/as3/compiler.rb",
+    "lib/buildr/as3/compiler/aircompc.rb",
+    "lib/buildr/as3/compiler/airmxmlc.rb",
+    "lib/buildr/as3/compiler/base.rb",
+    "lib/buildr/as3/compiler/compc.rb",
+    "lib/buildr/as3/compiler/mxmlc.rb",
     "lib/buildr/as3/doc.rb",
     "lib/buildr/as3/flexsdk.rb",
     "lib/buildr/as3/ide/fdt4.rb",
@@ -39,7 +47,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/devboy/buildr_as3}
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.5.0}
+  s.rubygems_version = %q{1.6.2}
   s.summary = %q{Buildr extension to allow ActionScript3/Flex development.}
   s.test_files = [
     "test/helper.rb",
@@ -54,20 +62,20 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_development_dependency(%q<rcov>, [">= 0"])
-      s.add_runtime_dependency(%q<buildr>, [">= 1.4.4"])
+      s.add_runtime_dependency(%q<buildr>, [">= 1.4.5"])
     else
       s.add_dependency(%q<shoulda>, [">= 0"])
       s.add_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_dependency(%q<rcov>, [">= 0"])
-      s.add_dependency(%q<buildr>, [">= 1.4.4"])
+      s.add_dependency(%q<buildr>, [">= 1.4.5"])
     end
   else
     s.add_dependency(%q<shoulda>, [">= 0"])
     s.add_dependency(%q<bundler>, ["~> 1.0.0"])
     s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
     s.add_dependency(%q<rcov>, [">= 0"])
-    s.add_dependency(%q<buildr>, [">= 1.4.4"])
+    s.add_dependency(%q<buildr>, [">= 1.4.5"])
   end
 end
 
