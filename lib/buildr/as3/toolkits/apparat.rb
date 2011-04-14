@@ -35,7 +35,6 @@ module Buildr
           generate_paths @zip_destination, @version
         end
 
-
         private
 
         def generate_paths(home_dir, version)
@@ -81,7 +80,7 @@ module Buildr
           reserved = []
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
-            cmd_args << "-#{key} #{value}"
+                cmd_args << "-#{key} #{value}"
           end
           call_system(cmd_args)
         end

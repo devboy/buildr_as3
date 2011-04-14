@@ -20,11 +20,4 @@
 # THE SOFTWARE.
 #
 
-require "buildr"
-
-require "#{File.dirname(__FILE__)}/as3/project"
-require "#{File.dirname(__FILE__)}/as3/compiler"
-require "#{File.dirname(__FILE__)}/as3/packaging"
-require "#{File.dirname(__FILE__)}/as3/toolkits"
-require "#{File.dirname(__FILE__)}/as3/ide"
-require "#{File.dirname(__FILE__)}/as3/doc"
+require "#{File.dirname(__FILE__)}/ide/fdt4"

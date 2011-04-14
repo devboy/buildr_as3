@@ -39,7 +39,7 @@ module Buildr
 
           after_define("as3:fdt4:generate" => :package) do |project|
             project.task("as3:fdt4:generate") do
-              fail("Cannot create fdt4 projects on Windows machines, no support for symlinks.") unless !Buildr::Util.win_os?
+              fail("Cannot create fdt4 projects on Windows machines, no support for symlinks.") if Buildr::Util.win_os?
               if [:mxmlc, :compc, :airmxmlc, :aircompc].include? project.compile.compiler
                 output = project.base_dir + "/.settings/com.powerflasher.fdt.classpath"
                 puts "Writing FDT4 classpath file: #{output}"
