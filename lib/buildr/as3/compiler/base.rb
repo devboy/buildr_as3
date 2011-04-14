@@ -27,7 +27,7 @@ module Buildr
     module Compiler
       class FlexCompilerBase < Buildr::Compiler::Base #:nodoc:
 
-        COMPILE_OPTIONS = [:warnings, :debug, :other, :flexsdk, :apparat]
+        COMPILE_OPTIONS = [:warnings, :debug, :other, :flexsdk, :apparat, :output]
 
         def initialize(project, options) #:nodoc:
           super
@@ -35,15 +35,10 @@ module Buildr
           options[:warnings] ||= true
         end
 
-
-        def needed?(sources, target, dependencies)
-          super
-        end
-
         def compile(sources, target, dependencies) #:nodoc:
           check_options options, COMPILE_OPTIONS
           flex_sdk = options[:flexsdk].invoke
-          output = "#{target}/output.swf"
+          output = @project.get_as3_output
           cmd_args = []
           cmd_args << "-jar" << @compiler_jar
           cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
@@ -57,6 +52,12 @@ module Buildr
             trace(cmd_args.join(' '))
             Java::Commands.java cmd_args
           end
+        end
+
+        def needed?(sources, target, dependencies)
+          return true unless File.exist?(@project.get_as3_output)
+          Dir.glob(FileList[sources,dependencies].to_a.collect{ |file| file += "**/*" } ).
+              map{|file| File.stat(file).mtime}.max > File.stat(@project.get_as3_output).mtime
         end
 
         private

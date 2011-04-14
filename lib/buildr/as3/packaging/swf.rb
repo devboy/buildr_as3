@@ -21,6 +21,7 @@
 #
 
 require 'buildr'
+require 'fileutils'
 
 module Buildr
   module AS3
@@ -29,7 +30,6 @@ module Buildr
       class SwfTask < Rake::FileTask
 
         include Extension
-#        include Buildr::AS3::Compiler::CompilerUtils
 
         attr_writer :target_swf, :src_swf
         attr_reader :target_swf, :src_swf
@@ -38,12 +38,13 @@ module Buildr
           super
           enhance do
             fail "File not found: #{src_swf}" unless File.exists? src_swf
-            File.copy(src_swf, target_swf)
+            FileUtils.cp(src_swf, target_swf)
           end
         end
 
         def needed?
-          super
+          return true unless File.exists?(target_swf)
+          File.stat(src_swf).mtime > File.stat(target_swf).mtime
         end
 
         first_time do
@@ -68,7 +69,7 @@ module Buildr
       def package_as_swf(file_name)
         fail("Package types don't match! :swf vs. :#{compile.packaging.to_s}") unless compile.packaging == :swf
         SwfTask.define_task(file_name).tap do |swf|
-          swf.src_swf = "#{compile.target}/output.swf"
+          swf.src_swf = get_as3_output
           swf.target_swf = file_name
         end
       end

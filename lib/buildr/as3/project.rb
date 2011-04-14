@@ -22,8 +22,13 @@
 
 require "buildr"
 
-require "#{File.dirname(__FILE__)}/as3/project"
-require "#{File.dirname(__FILE__)}/as3/compiler"
-require "#{File.dirname(__FILE__)}/as3/packaging"
-require "#{File.dirname(__FILE__)}/as3/toolkits"
-require "#{File.dirname(__FILE__)}/as3/ide/fdt4"
+class Buildr::Project
+
+  def get_as3_output()
+    return compile.options[:output] if compile.options.has_key? :output
+    return "#{compile.target}/#{File.basename(compile.options[:main].to_s, File.extname(compile.options[:main].to_s))}.swf" if compile.packaging == :swf
+    return "#{compile.target}/#{name.gsub(":", "-")}.swc" if compile.packaging == :swc
+    fail("Could not guess output file for #{name}")
+  end
+
+end

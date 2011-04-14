@@ -21,6 +21,7 @@
 #
 
 require 'buildr'
+require "fileutils"
 
 module Buildr
   module AS3
@@ -37,13 +38,13 @@ module Buildr
           super
           enhance do
             fail "File not found: #{src_swc}" unless File.exists? src_swc
-            File.copy(src_swc, target_swc)
+            FileUtils.cp(src_swc, target_swc)
           end
         end
 
         def needed?
-          super
-#          is_output_outdated? target_swc, src_swc
+          return true unless File.exists?(target_swc)
+          File.stat(src_swc).mtime > File.stat(target_swc).mtime
         end
 
         first_time do
@@ -68,7 +69,7 @@ module Buildr
       def package_as_swc(file_name)
         fail("Package types don't match! :swc vs. :#{compile.packaging.to_s}") unless compile.packaging == :swc
         SwcTask.define_task(file_name).tap do |swc|
-          swc.src_swc = "#{compile.target}/output.swc"
+          swc.src_swc = get_as3_output
           swc.target_swc = file_name
         end
       end

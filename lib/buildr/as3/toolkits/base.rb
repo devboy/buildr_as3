@@ -38,6 +38,28 @@ module Buildr
           self
         end
 
+        # :call-seq:
+        #   from(url) => self
+        #
+        # * You can pass a url where the ToolkitArtifact should be downloaded from as a string:
+        # FLEX_SDK.from("http://domain.tld/flex_sdk.zip")
+        # * You can pass :maven as a parameter to download it from a maven repository:
+        # FLEX_SDK.from(:maven)
+        # * If you don't call this function at all, buildr-as3 will try and resolve a url on automatically
+        def from(url)
+          @url = url
+          self
+        end
+
+        protected
+
+        def system_unzip_toolkit(zip, destination)
+          project_dir = Dir.getwd
+          Dir.chdir File.dirname(zip.to_s)
+          system("unzip #{File.basename(zip.to_s).to_s} -d #{File.basename(destination).to_s}")
+          Dir.chdir project_dir
+        end
+
         def unzip_toolkit(zip,destination)
           unless File.exists? destination
             puts "Unzipping Archive, this might take a while."
@@ -54,26 +76,6 @@ module Buildr
               end
             end
           end
-        end
-
-        # :call-seq:
-        #   from(url) => self
-        #
-        # * You can pass a url where the ToolkitArtifact should be downloaded from as a string:
-        # FLEX_SDK.from("http://domain.tld/flex_sdk.zip")
-        # * You can pass :maven as a parameter to download it from a maven repository:
-        # FLEX_SDK.from(:maven)
-        # * If you don't call this function at all, buildr-as3 will try and resolve a url on automatically
-        def from(url)
-          @url = url
-          self
-        end
-
-        def system_unzip_toolkit(zip, destination)
-          project_dir = Dir.getwd
-          Dir.chdir File.dirname(zip.to_s)
-          system("unzip #{File.basename(zip.to_s).to_s} -d #{File.basename(destination).to_s}")
-          Dir.chdir project_dir
         end
 
       end

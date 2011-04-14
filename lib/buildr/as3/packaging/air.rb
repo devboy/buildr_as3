@@ -46,7 +46,6 @@ module Buildr
             cmd_args << target_air
             cmd_args << appdescriptor
             cmd_args << "-C" << File.dirname(src_swf) << File.basename(src_swf)
-#            puts libs unless libs.nil?
             libs.each do |key, value|
               puts "key,value", key, value
               cmd_args << "-C" << key << value
@@ -61,7 +60,8 @@ module Buildr
         end
 
         def needed?
-#          is_output_outdated? target_air, src_swf
+          return true unless File.exists?(target_air)
+          File.stat(src_swf).mtime > File.stat(target_air).mtime
         end
 
         first_time do
@@ -109,7 +109,7 @@ module Buildr
       def package_as_air(file_name)
         fail("Package types don't match! :swf vs. :#{compile.packaging.to_s}") unless compile.packaging == :swf
         AirTask.define_task(file_name).tap do |swf|
-          swf.src_swf = Buildr::AS3::Compiler::CompilerUtils::get_output(project, compile.target, :swf, compile.options)
+          swf.src_swf = get_as3_output
           swf.target_air = file_name
           swf.flexsdk = compile.options[:flexsdk]
         end
