@@ -97,19 +97,17 @@ module Buildr
 
           attr_reader :project
 
-          def initialize(project, options)
-            super
-            @project = project
+          def needed?(sources, target, dependencies)
+            return true unless File.exist?(@project.get_as3_output)
+            Dir.glob(FileList[sources,dependencies].to_a.collect{ |file| file += "**/*" } ).
+                map{|file| File.stat(file).mtime}.max > File.stat(@project.get_as3_output).mtime
           end
-
-#          include Buildr::AS3::Compiler::CompilerUtils
 
           def compile(sources, target, dependencies)
             alchemy_tk = options[:alchemy].invoke
             flex_sdk = alchemy_tk.flex_sdk
-#            output = Buildr::AS3::Compiler::CompilerUtils::get_output(project, target, :swc, options)
+            output = @project.get_as3_output
 
-            # gcc stringecho.c -O3 -Wall -swc -o stringecho.swc
             cmd_args = []
             cmd_args << "gcc"
             cmd_args << File.basename(options[:main])

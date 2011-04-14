@@ -31,8 +31,8 @@ module Buildr
           @version = version
           @spec = "com.googlecode:apparat-bin:zip:#{@version}"
           @zip = Buildr.artifact(@spec)
-          @zip_destination = File.join(File.dirname(@zip.to_s), "apparat-bin-#{@version}", "apparat-#{@version}")
-          generate_paths @zip, @version
+          @zip_destination = File.join(File.dirname(@zip.to_s), "apparat-#{@version}", "apparat-#{@version}")
+          generate_paths @zip_destination, @version
         end
 
 
@@ -72,7 +72,7 @@ module Buildr
         end
 
         def apparat_tdsi(options = {})
-          output = Buildr::AS3::Compiler::CompilerUtils::get_output(project, compile.target, compile.packaging, compile.options)
+          output = project.get_as3_output
           apparat_tk = compile.options[:apparat].invoke
           cmd_args = []
           cmd_args << "#{apparat_tk.tdsi}"
@@ -83,12 +83,11 @@ module Buildr
               each do |key, value|
             cmd_args << "-#{key} #{value}"
           end
-          ENV["PATH"] = "#{apparat_tk.scala_home}/bin#{File::PATH_SEPARATOR}#{ENV["PATH"]}" if apparat_tk.scala_home && !ENV["PATH"].include?("#{apparat_tk.scala_home}/bin")
-          system(cmd_args.join " ")
+          call_system(cmd_args)
         end
 
         def apparat_reducer(quality)
-          output = Buildr::AS3::Compiler::CompilerUtils::get_output(project, compile.target, compile.packaging, compile.options)
+          output = project.get_as3_output
           apparat_tk = compile.options[:apparat].invoke
           cmd_args = []
           cmd_args << "#{apparat_tk.reducer}"
@@ -96,9 +95,17 @@ module Buildr
           cmd_args << "-o #{output}"
           cmd_args << "-q"
           cmd_args << quality || 100
-          ENV["PATH"] = "#{apparat_tk.scala_home}#{File::Separator}bin#{File::PATH_SEPARATOR}#{ENV["PATH"]}" if apparat_tk.scala_home && !ENV["PATH"].include?("#{apparat_tk.scala_home}/bin")
-          system(cmd_args.join " ")
+          call_system(cmd_args)
         end
+
+        private
+
+        def call_system(args)
+          unless system(args.join(" "))
+            puts "Failed to execute apparat:\n#{args.join(" ")}"
+          end
+        end
+
       end
     end
   end
