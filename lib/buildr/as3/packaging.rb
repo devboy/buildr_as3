@@ -22,6 +22,7 @@
 require File.dirname(__FILE__)+"/packaging/swf"
 require File.dirname(__FILE__)+"/packaging/swc"
 require File.dirname(__FILE__)+"/packaging/air"
+require File.dirname(__FILE__)+"/packaging/airi"
 
 class Buildr::Project
   include Buildr::AS3::Packaging

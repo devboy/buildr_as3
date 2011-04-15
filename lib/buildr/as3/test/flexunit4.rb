@@ -27,7 +27,14 @@ require "rexml/document"
 module Buildr
   module AS3
     module Test
-
+      # FlexUnit4 test framework.
+      #
+      # Support the following options:
+      # * :player     -- ["air","flash"] defines the player to run the tests, when not set it chooses based on the projects compiler.
+      # * :haltonFailure     -- [Boolean] stop unit-testing on error
+      # * :verbose     -- [Boolean] print additional info
+      # * :localTrusted     -- [Boolean] some sandbox thing
+      # * :htmlreport     -- [Boolean] set to true if you want to create a JUnit HTML report
       class FlexUnit4 < TestFramework::AS3
 
         VERSION = '4.1.0_RC2-4'
