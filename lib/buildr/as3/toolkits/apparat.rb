@@ -35,7 +35,17 @@ module Buildr
           generate_paths @zip_destination, @version
         end
 
+        def invoke #:nodoc:
+          @url ||= generate_url_from_version @version
+          super
+          self
+        end
+
         private
+
+        def generate_url_from_version(version)
+          "http://apparat.googlecode.com/files/apparat-#{version}-bin.zip"
+        end
 
         def generate_paths(home_dir, version)
           @home = home_dir

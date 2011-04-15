@@ -40,12 +40,12 @@ module Buildr
 
           def swc_dependencies
             [
-              "com.adobe.flexunit:flexunit:swc:as3_#{FLEX_SDK_VERSION}:#{VERSION}",
-              "com.adobe.flexunit:flexunit:swc:flex_#{FLEX_SDK_VERSION}:#{VERSION}",
-              "com.adobe.flexunit:flexunit-aircilistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}",
-              "com.adobe.flexunit:flexunit-cilistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}",
-              "com.adobe.flexunit:flexunit-flexcoverlistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}",
-              "com.adobe.flexunit:flexunit-uilistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}"
+                "com.adobe.flexunit:flexunit:swc:as3_#{FLEX_SDK_VERSION}:#{VERSION}",
+                "com.adobe.flexunit:flexunit:swc:flex_#{FLEX_SDK_VERSION}:#{VERSION}",
+                "com.adobe.flexunit:flexunit-aircilistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}",
+                "com.adobe.flexunit:flexunit-cilistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}",
+                "com.adobe.flexunit:flexunit-flexcoverlistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}",
+                "com.adobe.flexunit:flexunit-uilistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}"
             ]
           end
         end
@@ -54,14 +54,14 @@ module Buildr
           candidates = []
           task.project.test.compile.sources.each do |source|
             files = Dir["#{source}/**/*Test.as"] + Dir["#{source}/**/*Test.mxml"]
-            files.each{ |item| candidates << File.dirname(item).gsub!(source+"/","").gsub!("/",".")+"."+File.basename(item,'.*' )}
+            files.each { |item| candidates << File.dirname(item).gsub!(source+"/", "").gsub!("/", ".")+"."+File.basename(item, '.*') }
           end
           candidates
         end
 
         def run(tests, dependencies) #:nodoc:
 
-          report_dir = task.project._(:reports,FlexUnit4.to_sym)
+          report_dir = task.project._(:reports, FlexUnit4.to_sym)
           FileUtils.mkdir_p report_dir
 
           project_dir = Dir.getwd
@@ -70,10 +70,9 @@ module Buildr
           taskdef = Buildr.artifact(FlexUnit4.flexunit_taskdef)
           taskdef.invoke
 
-          player = "air" if [:airmxmlc,:airompc].include?(task.project.compile.compiler)
+          player = "air" if [:airmxmlc, :airompc].include?(task.project.compile.compiler)
           player ||= "flash"
           player || options[:player]
-
 
           Buildr.ant("flexunit4test") do |ant|
 
@@ -83,28 +82,30 @@ module Buildr
             ant.taskdef :resource => "flexUnitTasks.tasks",
                         :classpath => taskdef.to_s
 
-            ant.flexunit  :player => player,
-                          :haltonFailure => false || options[:haltonFailure],
-                          :verbose => true || options[:verbose],
-                          :localTrusted => true || options[:localTrusted],
-                          :swf => task.project.get_as3_output(task.project.test.compile.target,task.project.test.compile.options)
+            ant.flexunit :player => player,
+                         :haltonFailure => false || options[:haltonFailure],
+                         :verbose => true || options[:verbose],
+                         :localTrusted => true || options[:localTrusted],
+                         :swf => task.project.get_as3_output(task.project.test.compile.target, task.project.test.compile.options)
 
             ant.taskdef :name=>'junitreport',
                         :classname=>'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
                         :classpath=>Buildr.artifacts(JUnit.ant_taskdef).each(&:invoke).map(&:to_s).join(File::PATH_SEPARATOR)
-
-            ant.junitreport :todir => report_dir do
-              ant.fileset :dir => report_dir do
-                ant.include :name => "TEST-*.xml"
+            unless options[:htmlreport] == false
+              ant.junitreport :todir => report_dir do
+                ant.fileset :dir => report_dir do
+                  ant.include :name => "TEST-*.xml"
+                end
+                ant.report :format => "frames", :todir => report_dir + "/html"
               end
-              ant.report :format => "frames", :todir => report_dir + "/html"
             end
+
 
             Dir[report_dir+"/TEST-*.xml"].each do |xml_report|
               doc = REXML::Document.new File.new(xml_report)
               name = doc.elements["testsuite"].attributes["name"]
               failures = Integer(doc.elements["testsuite"].attributes["failures"])
-              errors =  Integer(doc.elements["testsuite"].attributes["errors"])
+              errors = Integer(doc.elements["testsuite"].attributes["errors"])
               tests -= [name] unless failures + errors == 0
             end
 
