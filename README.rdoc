@@ -14,6 +14,20 @@
 
 = Changelog
 
+== 0.1.28
+
+* [CLOSED] Issue 10: Added packaging task for unsigned AIR files *.airi
+* [CLOSED] Issue 19: Added conditional compilation arguments (CONFIG::debug & CONFIG::environment) which reflect the buildr settings.
+* [CLOSED] Issue 4: Alchemy will be supported on demand
+* [CLOSED] Issue 9: Alchemy will be supported on demand
+* [FIXED] Issue 17: Apparat tasks work on windows now
+* [FIXED] Issue 24: New asdoc task has been added
+* [FIXED] Issue 18: RDoc has been added to most modules
+* [FIXED] Issue 20: Apparat task failed message has been added
+* [FIXED] Issue 3: Trace info has been added
+* [FIXED] Issue 23: Download functions for artifacts have been updated to work across platforms
+* [FIXED] Issue 1: Compiler module has been rewritten from scratch
+
 == 0.1.20
 
 * [FIXED] directories of dependencies are now added as source folders in all compilers
