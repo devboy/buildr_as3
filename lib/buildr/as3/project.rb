@@ -24,10 +24,10 @@ require "buildr"
 
 class Buildr::Project
 
-  def get_as3_output()
-    return compile.options[:output] if compile.options.has_key? :output
-    return "#{compile.target}/#{File.basename(compile.options[:main].to_s, File.extname(compile.options[:main].to_s))}.swf" if compile.packaging == :swf
-    return "#{compile.target}/#{name.gsub(":", "-")}.swc" if compile.packaging == :swc
+  def get_as3_output( target, options )
+#    return compile.options[:output] if compile.options.has_key? :output
+    return "#{target}/#{File.basename(options[:main].to_s, File.extname(options[:main].to_s))}.swf" if compile.packaging == :swf
+    return "#{target}/#{name.gsub(":", "-")}.swc" if compile.packaging == :swc
     fail("Could not guess output file for #{name}")
   end
 

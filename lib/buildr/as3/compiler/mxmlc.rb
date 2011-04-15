@@ -49,8 +49,7 @@ module Buildr
         def compile(sources, target, dependencies) #:nodoc:
           @compiler_jar = options[:flexsdk].mxmlc_jar
           COMPILE_OPTIONS << :main
-          options[:other] = [] if options[:other].nil?
-          options[:other] << options[:main]
+          @main = options[:main]
           super
         end
 

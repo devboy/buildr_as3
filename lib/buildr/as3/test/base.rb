@@ -19,3 +19,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
+
+require 'buildr'
+
+module Buildr
+  module AS3
+    module Test
+      class TestFramework::AS3 < TestFramework::Base
+
+        class << self
+
+          def applies_to?(project) #:nodoc:
+            project.test.compile.language == :actionscript
+          end
+
+          def dependencies
+            unless @dependencies
+              super
+            end
+            @dependencies
+          end
+        end
+      end
+    end
+
+  end
+end

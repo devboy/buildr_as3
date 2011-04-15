@@ -27,7 +27,7 @@ module Buildr
     module Compiler
       class FlexCompilerBase < Buildr::Compiler::Base #:nodoc:
 
-        COMPILE_OPTIONS = [:warnings, :debug, :other, :flexsdk, :apparat, :output]
+        COMPILE_OPTIONS = [:warnings, :debug, :other, :flexsdk, :apparat]
 
         def initialize(project, options) #:nodoc:
           super
@@ -36,14 +36,17 @@ module Buildr
         end
 
         def compile(sources, target, dependencies) #:nodoc:
+          p "TARGET:" + target
+          p "OPTIONS:" + options.to_a.to_s
           check_options options, COMPILE_OPTIONS
           flex_sdk = options[:flexsdk].invoke
-          output = @project.get_as3_output
+          output = @project.get_as3_output( target, options )
           cmd_args = []
           cmd_args << "-jar" << @compiler_jar
           cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
           cmd_args << "-output" << output
           cmd_args << "+configname=air" if @air
+          cmd_args << @main unless @main.nil?
           cmd_args << "-load-config" << flex_sdk.flex_config
           cmd_args += generate_source_args sources
           cmd_args += generate_dependency_args dependencies
@@ -55,9 +58,9 @@ module Buildr
         end
 
         def needed?(sources, target, dependencies)
-          return true unless File.exist?(@project.get_as3_output)
+          return true unless File.exist?(@project.get_as3_output(target, options))
           Dir.glob(FileList[sources,dependencies].to_a.collect{ |file| file += "**/*" } ).
-              map{|file| File.stat(file).mtime}.max > File.stat(@project.get_as3_output).mtime
+              map{|file| File.stat(file).mtime}.max > File.stat(@project.get_as3_output(target, options)).mtime
         end
 
         private
