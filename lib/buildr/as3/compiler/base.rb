@@ -36,8 +36,6 @@ module Buildr
         end
 
         def compile(sources, target, dependencies) #:nodoc:
-          p "TARGET:" + target
-          p "OPTIONS:" + options.to_a.to_s
           check_options options, COMPILE_OPTIONS
           flex_sdk = options[:flexsdk].invoke
           output = @project.get_as3_output( target, options )

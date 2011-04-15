@@ -22,78 +22,67 @@
 
 require 'buildr'
 require 'fileutils'
+require "rexml/document"
 
 module Buildr
   module AS3
     module Test
-      # JUnit test framework, the default test framework for Java tests.
-      #
-      # Support the following options:
-      # * :fork        -- If true/:once (default), fork for each test class.  If :each, fork for each individual
-      #                   test case.  If false, run all tests in the same VM (fast, but dangerous).
-      # * :clonevm     -- If true clone the VM each time it is forked.
-      # * :properties  -- Hash of system properties available to the test case.
-      # * :environment -- Hash of environment variables available to the test case.
-      # * :java_args   -- Arguments passed as is to the JVM.
+
       class FlexUnit4 < TestFramework::AS3
-        # JUnit version number.
-#        VERSION = '4.1'
 
-#        class << self
-          # :call-seq:
-          #    report()
-          #
-          # Returns the Report object used by the junit:report task. You can use this object to set
-          # various options that affect your report, for example:
-          #   JUnit.report.frames = false
-          #   JUnit.report.params['title'] = 'My App'
-#          def report
-#            @report ||= JUnit::Report.new
-#          end
+        VERSION = '4.1.0_RC2-4'
+        FLEX_SDK_VERSION = '4.1.0.16076'
 
-#          def version
-#            Buildr.settings.build['junit'] || VERSION
-#          end
+        class << self
+          def flexunit_taskdef #:nodoc:
+            "com.adobe.flexunit:flexunitUnitTasks:jar:#{VERSION}"
+          end
 
-#          def dependencies
-#            super
-#            @dependencies ||= ["junit:junit:jar:#{version}"]+ JMock.dependencies
-#          end
-
-#          def ant_taskdef #:nodoc:
-#            "org.apache.ant:ant-junit:jar:#{Ant.version}"
-#          end
-
-#          private
-#          def const_missing(const)
-#            return super unless const == :REQUIRES # TODO: remove in 1.5
-#            Buildr.application.deprecated "Please use JUnit.dependencies/.version instead of JUnit::REQUIRES/VERSION"
-#            dependencies
-#          end
-#        end
+          def swc_dependencies
+            [
+              "com.adobe.flexunit:flexunit:swc:as3_#{FLEX_SDK_VERSION}:#{VERSION}",
+              "com.adobe.flexunit:flexunit:swc:flex_#{FLEX_SDK_VERSION}:#{VERSION}",
+              "com.adobe.flexunit:flexunit-aircilistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}",
+              "com.adobe.flexunit:flexunit-cilistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}",
+              "com.adobe.flexunit:flexunit-flexcoverlistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}",
+              "com.adobe.flexunit:flexunit-uilistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}"
+            ]
+          end
+        end
 
         def tests(dependencies) #:nodoc:
-          candidates = Dir["#{task.project.test.compile.sources[0]}/**/*Test.as"] + Dir["#{task.project.test.compile.sources[0]}/**/*Test.mxml"]
-          candidates.collect{|file|file=File.basename(file,'.*')}
+          candidates = []
+          task.project.test.compile.sources.each do |source|
+            files = Dir["#{source}/**/*Test.as"] + Dir["#{source}/**/*Test.mxml"]
+            files.each{ |item| candidates << File.dirname(item).gsub!(source+"/","").gsub!("/",".")+"."+File.basename(item,'.*' )}
+          end
+          candidates
         end
 
         def run(tests, dependencies) #:nodoc:
-          p tests
-          report_dir = task.project.base_dir + "/reports/flexunit4"
+
+          puts options
+
+          report_dir = task.project._(:reports,FlexUnit4.to_sym)
           FileUtils.mkdir_p report_dir
+
           project_dir = Dir.getwd
           Dir.chdir report_dir
+
+          taskdef = Buildr.artifact(FlexUnit4.flexunit_taskdef)
+          taskdef.invoke
+
           Buildr.ant("flexunit4test") do |ant|
 
             ant.property :name => "FLEX_HOME", :location=>task.project.compile.options[:flexsdk].home
-            taskdef = "/Users/devboy/Downloads/flexunit-flexunit-63a89a9/FlexUnit4AntTasks/target/flexUnitTasks-4.1.0.jar"
-            ant.taskdef :resource => "flexUnitTasks.tasks", :classpath => taskdef
+            ant.taskdef :resource => "flexUnitTasks.tasks", :classpath => taskdef.to_s
 
             ant.flexunit  :player => "flash",
                           :haltonFailure => false,
                           :verbose => true,
                           :localTrusted => true,
                           :swf => task.project.get_as3_output(task.project.test.compile.target,task.project.test.compile.options)
+
             ant.taskdef :name=>'junitreport', :classname=>'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
                         :classpath=>Buildr.artifacts(JUnit.ant_taskdef).each(&:invoke).map(&:to_s).join(File::PATH_SEPARATOR)
 
@@ -102,6 +91,14 @@ module Buildr
                 ant.include :name => "TEST-*.xml"
               end
               ant.report :format => "frames", :todir => report_dir + "/html"
+            end
+
+            Dir[report_dir+"/TEST-*.xml"].each do |xml_report|
+              doc = REXML::Document.new File.new(xml_report)
+              name = doc.elements["testsuite"].attributes["name"]
+              failures = Integer(doc.elements["testsuite"].attributes["failures"])
+              errors =  Integer(doc.elements["testsuite"].attributes["errors"])
+              tests -= [name] unless failures + errors == 0
             end
 
           end
