@@ -15,7 +15,7 @@
 = Changelog
 
 == 0.1.28
-
+* [FEATURE] FlexUnit4 support has been added.
 * [CLOSED] Issue 10: Added packaging task for unsigned AIR files *.airi
 * [CLOSED] Issue 19: Added conditional compilation arguments (CONFIG::debug & CONFIG::environment) which reflect the buildr settings.
 * [CLOSED] Issue 4: Alchemy will be supported on demand
