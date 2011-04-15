@@ -61,8 +61,6 @@ module Buildr
 
         def run(tests, dependencies) #:nodoc:
 
-          puts options
-
           report_dir = task.project._(:reports,FlexUnit4.to_sym)
           FileUtils.mkdir_p report_dir
 
@@ -72,18 +70,27 @@ module Buildr
           taskdef = Buildr.artifact(FlexUnit4.flexunit_taskdef)
           taskdef.invoke
 
+          player = "air" if [:airmxmlc,:airompc].include?(task.project.compile.compiler)
+          player ||= "flash"
+          player || options[:player]
+
+
           Buildr.ant("flexunit4test") do |ant|
 
-            ant.property :name => "FLEX_HOME", :location=>task.project.compile.options[:flexsdk].home
-            ant.taskdef :resource => "flexUnitTasks.tasks", :classpath => taskdef.to_s
+            ant.property :name => "FLEX_HOME",
+                         :location=>task.project.compile.options[:flexsdk].home
 
-            ant.flexunit  :player => "flash",
-                          :haltonFailure => false,
-                          :verbose => true,
-                          :localTrusted => true,
+            ant.taskdef :resource => "flexUnitTasks.tasks",
+                        :classpath => taskdef.to_s
+
+            ant.flexunit  :player => player,
+                          :haltonFailure => false || options[:haltonFailure],
+                          :verbose => true || options[:verbose],
+                          :localTrusted => true || options[:localTrusted],
                           :swf => task.project.get_as3_output(task.project.test.compile.target,task.project.test.compile.options)
 
-            ant.taskdef :name=>'junitreport', :classname=>'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
+            ant.taskdef :name=>'junitreport',
+                        :classname=>'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
                         :classpath=>Buildr.artifacts(JUnit.ant_taskdef).each(&:invoke).map(&:to_s).join(File::PATH_SEPARATOR)
 
             ant.junitreport :todir => report_dir do
