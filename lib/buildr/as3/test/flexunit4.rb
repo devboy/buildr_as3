@@ -77,9 +77,8 @@ module Buildr
           taskdef = Buildr.artifact(FlexUnit4.flexunit_taskdef)
           taskdef.invoke
 
-          player = "air" if [:airmxmlc, :airompc].include?(task.project.compile.compiler)
+          player = "air" if [:airmxmlc, :airompc].include?(task.project.compile.compiler) || options[:player] == "air"
           player ||= "flash"
-          player || options[:player]
 
           Buildr.ant("flexunit4test") do |ant|
 
@@ -98,6 +97,7 @@ module Buildr
             ant.taskdef :name=>'junitreport',
                         :classname=>'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
                         :classpath=>Buildr.artifacts(JUnit.ant_taskdef).each(&:invoke).map(&:to_s).join(File::PATH_SEPARATOR)
+
             unless options[:htmlreport] == false
               ant.junitreport :todir => report_dir do
                 ant.fileset :dir => report_dir do
