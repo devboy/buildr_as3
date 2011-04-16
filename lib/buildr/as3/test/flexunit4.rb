@@ -61,7 +61,13 @@ module Buildr
           candidates = []
           task.project.test.compile.sources.each do |source|
             files = Dir["#{source}/**/*Test.as"] + Dir["#{source}/**/*Test.mxml"]
-            files.each { |item| candidates << File.dirname(item).gsub!(source+"/", "").gsub!("/", ".")+"."+File.basename(item, '.*') }
+            files.each { |item|
+              if File.dirname(item) == source
+                candidates << File.basename(item, '.*')
+              else
+                candidates << File.dirname(item).gsub!(source+"/", "").gsub!("/", ".")+"."+File.basename(item, '.*')
+              end
+            }
           end
           candidates
         end
@@ -80,7 +86,7 @@ module Buildr
           player = "air" if [:airmxmlc, :airompc].include?(task.project.compile.compiler) || options[:player] == "air"
           player ||= "flash"
 
-          Buildr.ant("flexunit4test") do |ant|
+          Buildr.ant("flexunit4") do |ant|
 
             ant.property :name => "FLEX_HOME",
                          :location=>task.project.compile.options[:flexsdk].home
