@@ -2,7 +2,7 @@
 .idea
 buildr_as3.iml
 
-
+.DS_Store
 
 # rcov generated
 coverage
