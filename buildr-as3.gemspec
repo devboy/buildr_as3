@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{buildr-as3}
-  s.version = "0.2.2"
+  s.version = "0.2.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Dominic Graefen"]
-  s.date = %q{2011-04-16}
+  s.date = %q{2011-05-07}
   s.default_executable = %q{buildr-as3}
   s.description = %q{Build like you code - now supporting ActionScript 3 & Flex}
   s.email = %q{dominic @nospam@ devboy.org}
@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
     "VERSION",
     "bin/buildr-as3",
     "buildr-as3.gemspec",
+    "index.html",
     "lib/buildr/as3.rb",
     "lib/buildr/as3/compiler.rb",
     "lib/buildr/as3/compiler/aircompc.rb",
@@ -52,6 +53,7 @@ Gem::Specification.new do |s|
     "lib/buildr/as3/toolkits/apparat.rb",
     "lib/buildr/as3/toolkits/base.rb",
     "lib/buildr/as3/toolkits/flexsdk.rb",
+    "pages/pages.css",
     "test/helper.rb",
     "test/test_buildr_as3.rb"
   ]
