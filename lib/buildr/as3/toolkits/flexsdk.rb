@@ -63,7 +63,10 @@ module Buildr
         private
 
         def generate_url_from_version(version)
-          "http://fpdownload.adobe.com/pub/flex/sdk/builds/flex#{version.split(".")[0]}/flex_sdk_#{version}.zip"
+          version_major = version.split(".")[0]
+          version_minor = version.split(".")[1]
+          version_id = version_major == "4" && version_minor == "5" ? "4.5" : version_major
+          "http://fpdownload.adobe.com/pub/flex/sdk/builds/flex#{version_id}/flex_sdk_#{version}.zip"
         end
 
         def generate_paths(home_dir)
