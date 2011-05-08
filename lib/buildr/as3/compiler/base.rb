@@ -59,8 +59,9 @@ module Buildr
 
         def needed?(sources, target, dependencies)
           return true unless File.exist?(@project.get_as3_output(target, options))
-          Dir.glob(FileList[sources,dependencies].to_a.map{ |file| file = "#{file}/**/*" } ).
-              map{|file| File.stat(file).mtime}.max || Time.at(0) > File.stat(@project.get_as3_output(target, options)).mtime
+          maxtime = Dir.glob(FileList[sources,dependencies].to_a.map{ |file| file = "#{file}/**/*" } ).
+              map{|file| File.stat(file).mtime}.max || Time.at(0)
+          maxtime > File.stat(@project.get_as3_output(target, options)).mtime
         end
 
         private
