@@ -47,7 +47,8 @@ module Buildr
           cmd_args << @main unless @main.nil?
           cmd_args << "-define+=CONFIG::debug,#{options[:debug]}"
           cmd_args << "-define+=CONFIG::environment,\"#{Buildr.environment}\""
-          cmd_args << "-load-config" << flex_sdk.flex_config
+          cmd_args << "-load-config" << flex_sdk.flex_config unless @air
+          cmd_args << "-load-config" << flex_sdk.air_config if @air
           cmd_args += generate_source_args sources
           cmd_args += generate_dependency_args dependencies
           cmd_args += flex_compiler_args
