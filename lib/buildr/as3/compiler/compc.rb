@@ -48,7 +48,10 @@ module Buildr
 
         def generate_source_args(sources) #:nodoc:
           source_args = []
-          sources.each { |source| source_args << "-include-sources+=#{source}" }
+          sources.each { |source|
+            source_args << "-include-sources+=#{source}"
+            source_args << "-source-path+=#{source}"
+          }
           source_args
         end
 
