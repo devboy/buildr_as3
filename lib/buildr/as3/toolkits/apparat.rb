@@ -95,7 +95,7 @@ module Buildr
           call_system(cmd_args)
         end
 
-        def apparat_reducer(quality)
+        def apparat_reducer(options ={})
           output = project.get_as3_output(compile.target, compile.options)
           apparat_tk = compile.options[:apparat].invoke
           cmd_args = []
