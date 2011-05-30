@@ -20,6 +20,7 @@
 # THE SOFTWARE.
 #
 
+require "buildr"
 require 'buildr/core/compile'
 
 module Buildr

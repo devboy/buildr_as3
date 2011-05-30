@@ -102,14 +102,18 @@ module Buildr
           cmd_args << "#{apparat_tk.reducer}"
           cmd_args << "-i #{output}"
           cmd_args << "-o #{output}"
-          cmd_args << "-q"
-          cmd_args << quality || 100
+          reserved = []
+          options.to_hash.reject { |key, value| reserved.include?(key) }.
+              each do |key, value|
+                cmd_args << "-#{key} #{value}"
+          end
           call_system(cmd_args)
         end
 
         private
 
         def call_system(args)
+          trace("Calling APPARAT: " + args.join(" "))
           unless system(args.join(" "))
             puts "Failed to execute apparat:\n#{args.join(" ")}"
           end
