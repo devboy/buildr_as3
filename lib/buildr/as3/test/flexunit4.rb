@@ -95,9 +95,9 @@ module Buildr
                         :classpath => taskdef.to_s
 
             ant.flexunit :player => player,
-                         :haltonFailure => false || options[:haltonFailure],
-                         :verbose => true || options[:verbose],
-                         :localTrusted => true || options[:localTrusted],
+                         :haltonFailure => options[:haltonFailure] || false,
+                         :verbose => options[:verbose] || false,
+                         :localTrusted => options[:localTrusted] || true,
                          :swf => task.project.get_as3_output(task.project.test.compile.target, task.project.test.compile.options)
 
             ant.taskdef :name=>'junitreport',
