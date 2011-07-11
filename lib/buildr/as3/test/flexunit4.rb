@@ -58,8 +58,6 @@ module Buildr
         end
 
         def tests(dependencies) #:nodoc:
-          p "tests"
-
           candidates = []
           task.project.test.compile.sources.each do |source|
             files = Dir["#{source}/**/*Test.as"] + Dir["#{source}/**/*Test.mxml"]
@@ -72,14 +70,10 @@ module Buildr
             }
           end
 
-          p candidates
-
           candidates
         end
 
         def run(tests, dependencies) #:nodoc:
-
-          p "run #{tests}"
 
           report_dir = task.project._(:reports, FlexUnit4.to_sym)
           FileUtils.mkdir_p report_dir
