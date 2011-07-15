@@ -99,11 +99,13 @@ module Buildr
                          :haltonFailure => options[:haltonFailure] || false,
                          :verbose => options[:verbose] || false,
                          :localTrusted => options[:localTrusted] || true,
-                         :swf => task.project.get_as3_output(task.project.test.compile.target, task.project.test.compile.options)
+                         :headless => options[:headless] || false,
+                         :display => options[:display] || 99,
+                         :swf => task.project.get_as3_output(task.project.test.compile.target, task.project.test.compile.options),
 
-            ant.taskdef :name=>'junitreport',
-                        :classname=>'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
-                        :classpath=>Buildr.artifacts(JUnit.ant_taskdef).each(&:invoke).map(&:to_s).join(File::PATH_SEPARATOR)
+                         ant.taskdef :name=>'junitreport',
+                                     :classname=>'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
+                                     :classpath=>Buildr.artifacts(JUnit.ant_taskdef).each(&:invoke).map(&:to_s).join(File::PATH_SEPARATOR)
 
             unless options[:htmlreport] == false
               ant.junitreport :todir => report_dir do
