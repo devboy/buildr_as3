@@ -101,7 +101,7 @@ module Buildr
                          :localTrusted => options[:localTrusted] || true,
                          :headless => options[:headless] || false,
                          :display => options[:display] || 99,
-                         :swf => task.project.get_as3_output(task.project.test.compile.target, task.project.test.compile.options),
+                         :swf => task.project.get_as3_output(task.project.test.compile.target, task.project.test.compile.options)
 
                          ant.taskdef :name=>'junitreport',
                                      :classname=>'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
