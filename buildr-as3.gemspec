@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{buildr-as3}
-  s.version = "0.2.12"
+  s.version = "0.2.16"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Dominic Graefen"]
-  s.date = %q{2011-05-31}
+  s.date = %q{2011-07-15}
   s.default_executable = %q{buildr-as3}
   s.description = %q{Build like you code - now supporting ActionScript 3 & Flex}
   s.email = %q{dominic @nospam@ devboy.org}
@@ -27,7 +27,6 @@ Gem::Specification.new do |s|
     "VERSION",
     "bin/buildr-as3",
     "buildr-as3.gemspec",
-    "index.html",
     "lib/buildr/as3.rb",
     "lib/buildr/as3/compiler.rb",
     "lib/buildr/as3/compiler/aircompc.rb",
@@ -35,6 +34,7 @@ Gem::Specification.new do |s|
     "lib/buildr/as3/compiler/base.rb",
     "lib/buildr/as3/compiler/compc.rb",
     "lib/buildr/as3/compiler/mxmlc.rb",
+    "lib/buildr/as3/compiler/task.rb",
     "lib/buildr/as3/doc.rb",
     "lib/buildr/as3/doc/asdoc.rb",
     "lib/buildr/as3/ide.rb",
@@ -53,7 +53,6 @@ Gem::Specification.new do |s|
     "lib/buildr/as3/toolkits/apparat.rb",
     "lib/buildr/as3/toolkits/base.rb",
     "lib/buildr/as3/toolkits/flexsdk.rb",
-    "pages/pages.css",
     "test/helper.rb",
     "test/test_buildr_as3.rb"
   ]
@@ -74,12 +73,14 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<shoulda>, [">= 0"])
       s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
+      s.add_development_dependency(%q<buildr>, ["~> 1.4.6"])
       s.add_development_dependency(%q<rcov>, [">= 0"])
       s.add_runtime_dependency(%q<buildr>, [">= 1.4.5"])
     else
       s.add_dependency(%q<shoulda>, [">= 0"])
       s.add_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
+      s.add_dependency(%q<buildr>, ["~> 1.4.6"])
       s.add_dependency(%q<rcov>, [">= 0"])
       s.add_dependency(%q<buildr>, [">= 1.4.5"])
     end
@@ -87,6 +88,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<shoulda>, [">= 0"])
     s.add_dependency(%q<bundler>, ["~> 1.0.0"])
     s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
+    s.add_dependency(%q<buildr>, ["~> 1.4.6"])
     s.add_dependency(%q<rcov>, [">= 0"])
     s.add_dependency(%q<buildr>, [">= 1.4.5"])
   end
