@@ -69,7 +69,7 @@ module Buildr
       def package_as_swc(file_name)
         fail("Package types don't match! :swc vs. :#{compile.packaging.to_s}") unless compile.packaging == :swc
         SwcTask.define_task(file_name).tap do |swc|
-          swc.src_swc = get_as3_output(compile.target,compile.options)
+          swc.src_swc = get_as3_output
           swc.target_swc = file_name
         end
       end

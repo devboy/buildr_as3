@@ -39,7 +39,7 @@ module Buildr
         def compile(sources, target, dependencies) #:nodoc:
           check_options options, COMPILE_OPTIONS
           flex_sdk = options[:flexsdk].invoke
-          output = @project.get_as3_output( target, options )
+          output = @project.get_as3_output( is_test(sources,target,dependencies) )
           cmd_args = []
           cmd_args << "-jar" << @compiler_jar
           cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
@@ -60,13 +60,13 @@ module Buildr
         end
 
         def needed?(sources, target, dependencies)
-          return true unless File.exist?(@project.get_as3_output(target, options))
+          return true unless File.exist?(@project.get_as3_output(is_test(sources,target,dependencies)))
           source_files = Dir.glob(sources.collect{|source| source = "#{source}/**/*"})
           dep_files = dependencies.collect{ |dep|
             File.directory?(dep) ? Dir.glob("#{dep}/**/*") : dep
           }.flatten
           maxtime = (source_files + dep_files).collect{ |file| File.stat(file).mtime }.max || Time.at(0)
-          maxtime > File.stat(@project.get_as3_output(target, options)).mtime
+          maxtime > File.stat(@project.get_as3_output(is_test(sources,target,dependencies))).mtime
         end
 
         private
@@ -76,6 +76,10 @@ module Buildr
           args << '-warnings=false' unless options[:warnings]
           args << '-debug=true' if options[:debug]
           args + Array(options[:other]) + Array(options[:flexsdk].default_options)
+        end
+
+        def is_test( sources, target, dependencies )
+          @project.test.compile.sources == sources && @project.test.compile.target == target && @project.test.  compile.dependencies == dependencies
         end
 
       end

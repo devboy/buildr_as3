@@ -81,7 +81,7 @@ module Buildr
         end
 
         def apparat_tdsi(options = {})
-          output = project.get_as3_output(compile.target, compile.options)
+          output = project.get_as3_output
           apparat_tk = compile.options[:apparat].invoke
           cmd_args = []
           cmd_args << "#{apparat_tk.tdsi}"
@@ -96,7 +96,7 @@ module Buildr
         end
 
         def apparat_reducer(options ={})
-          output = project.get_as3_output(compile.target, compile.options)
+          output = project.get_as3_output
           apparat_tk = compile.options[:apparat].invoke
           cmd_args = []
           cmd_args << "#{apparat_tk.reducer}"
