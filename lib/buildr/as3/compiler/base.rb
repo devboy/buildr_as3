@@ -79,7 +79,7 @@ module Buildr
         end
 
         def is_test( sources, target, dependencies )
-          @project.test.compile.sources == sources && @project.test.compile.target == target && @project.test.  compile.dependencies == dependencies
+          sources==@project.test.compile.sources && dependencies==@project.test.compile.dependencies.collect{|dep|dep.to_s} && target==@project.test.compile.target.to_s
         end
 
       end
