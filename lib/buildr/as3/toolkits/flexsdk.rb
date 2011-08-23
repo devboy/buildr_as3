@@ -65,8 +65,10 @@ module Buildr
           
           return if !opts[:force] && File.directory?("#{@home}/frameworks/projects/framework/bundles/#{locale}")
 
+          # gotta download it
+          invoke
+
           cmd_args = []
-          cmd_args << "-Xmx384m"
           cmd_args << "-Dsun.io.useCanonCaches=false"
           cmd_args << "-Dapplication.home=#{@home}"
           cmd_args << "-jar" << @copylocale_jar
