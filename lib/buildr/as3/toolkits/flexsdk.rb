@@ -89,7 +89,7 @@ module Buildr
 
         def generate_paths(home_dir)
           @home = home_dir
-          @copylocale_jar = "#{home}/lib/copylocale.jar"
+          @copylocale_jar = "#{@home}/lib/copylocale.jar"
           @mxmlc_jar = "#{@home}/lib/mxmlc.jar"
           @compc_jar = "#{@home}/lib/compc.jar"
           @asdoc_jar = "#{@home}/lib/asdoc.jar"
