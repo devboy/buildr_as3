@@ -60,6 +60,26 @@ module Buildr
           self
         end
 
+        def copy_locale(locale,opts={})
+          opts = {:force => false, :based_on => "en_US"}.merge opts
+          
+          return if !opts[:force] && File.directory?("#{@home}/frameworks/projects/framework/bundles/#{locale}")
+
+          # gotta download it
+          invoke
+
+          cmd_args = []
+          cmd_args << "-Dsun.io.useCanonCaches=false"
+          cmd_args << "-Dapplication.home=#{@home}"
+          cmd_args << "-jar" << @copylocale_jar
+          cmd_args << opts[:based_on] 
+          cmd_args << locale
+          unless Buildr.application.options.dryrun
+            trace(cmd_args.join(' '))
+            Java::Commands.java cmd_args
+          end
+  
+        end
         private
 
         def generate_url_from_version(version)
@@ -71,6 +91,7 @@ module Buildr
 
         def generate_paths(home_dir)
           @home = home_dir
+          @copylocale_jar = "#{@home}/lib/copylocale.jar"
           @mxmlc_jar = "#{@home}/lib/mxmlc.jar"
           @compc_jar = "#{@home}/lib/compc.jar"
           @asdoc_jar = "#{@home}/lib/asdoc.jar"
