@@ -11,4 +11,5 @@ group :development do
   gem "jeweler", "~> 1.5.2"
   gem "buildr", "~> 1.4.6"
   gem "rcov", ">= 0"
+  gem "rspec"
 end
