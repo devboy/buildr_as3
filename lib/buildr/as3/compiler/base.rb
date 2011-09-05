@@ -28,7 +28,7 @@ module Buildr
     module Compiler
       class FlexCompilerBase < Buildr::Compiler::Base #:nodoc:
 
-        COMPILE_OPTIONS = [:warnings, :debug, :other, :flexsdk, :apparat]
+        COMPILE_OPTIONS = [:warnings, :debug, :other, :flexsdk, :apparat, :output]
 
         def initialize(project, options) #:nodoc:
           super
