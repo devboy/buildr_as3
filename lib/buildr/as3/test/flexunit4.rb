@@ -65,7 +65,7 @@ module Buildr
               if File.dirname(item) == source
                 candidates << File.basename(item, '.*')
               else
-                candidates << File.dirname(item).gsub!(source+"/", "").gsub!("/", ".")+"."+File.basename(item, '.*')
+                candidates << "#{File.dirname(item).gsub!(source+"/", "").gsub!("/", ".")}.#{File.basename(item, '.*')}"
               end
             }
           end
