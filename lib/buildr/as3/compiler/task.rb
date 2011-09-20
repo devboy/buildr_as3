@@ -21,3 +21,33 @@
 #
 
 # Let's enhance the CompileTask here!
+
+require "buildr/core/compile"
+
+class Buildr::CompileTask
+
+  attr_accessor :as3_dependencies
+
+  def with(*specs)
+
+    @as3_dependencies ||= {}
+    @as3_dependencies[:library] ||= FileList[]
+    @as3_dependencies[:external] ||= FileList[]
+    @as3_dependencies[:include] ||= FileList[]
+
+    specs.each do |spec|
+      case spec
+        when Hash
+          spec.each{ |key,value|
+            @as3_dependencies[key] |= Buildr.artifacts(value).uniq
+            @dependencies |= Buildr.artifacts(value).uniq
+          }
+        else
+          @as3_dependencies[:library] |= Buildr.artifacts(spec).uniq
+          @dependencies |= Buildr.artifacts(spec).uniq
+      end
+    end
+    self
+  end
+
+end
