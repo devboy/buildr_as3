@@ -17,59 +17,61 @@
 # The local repository we use for testing is void of any artifacts, which will break given
 # that the code requires several artifacts. So we establish them first using the real local
 # repository and cache these across test cases.
+require 'buildr'
+
 Buildr.application.instance_eval { @rakefile = File.expand_path('buildfile') }
 repositories.remote << 'http://repo1.maven.org/maven2'
 repositories.remote << 'http://scala-tools.org/repo-releases'
 
 # Force Scala version for specs; don't want to rely on SCALA_HOME
-module Buildr::Scala
-  SCALA_VERSION_FOR_SPECS = ENV["SCALA_VERSION"] || "2.8.1"
-end
-Buildr.settings.build['scala.version'] = Buildr::Scala::SCALA_VERSION_FOR_SPECS
+#module Buildr::Scala
+#  SCALA_VERSION_FOR_SPECS = ENV["SCALA_VERSION"] || "2.8.1"
+#end
+#Buildr.settings.build['scala.version'] = Buildr::Scala::SCALA_VERSION_FOR_SPECS
 
 # Add a 'require' here only for optional extensions, not for extensions that should be loaded by default.
-require 'buildr/clojure'
-require 'buildr/groovy'
-require 'buildr/scala'
-require 'buildr/bnd'
-require 'buildr/jaxb_xjc'
+#require 'buildr/clojure'
+#require 'buildr/groovy'
+#require 'buildr/scala'
+#require 'buildr/bnd'
+#require 'buildr/jaxb_xjc'
 
-Java.load # Anything added to the classpath.
-artifacts(
-  TestFramework.frameworks.map(&:dependencies).flatten,
-  JUnit.ant_taskdef,
-  Buildr::Groovy.dependencies,
-  Buildr::JaxbXjc.dependencies,
-  Buildr::Bnd.dependencies,
-  Buildr::Scala::Scalac.dependencies,
-  Buildr::Scala::Specs.dependencies,
-  Buildr::Shell::BeanShell.artifact,
-  Buildr::Clojure.dependencies
-).each do |path|
-  file(path).invoke
-end
+#Java.load # Anything added to the classpath.
+#artifacts(
+#  TestFramework.frameworks.map(&:dependencies).flatten,
+#  JUnit.ant_taskdef,
+#  Buildr::Groovy.dependencies,
+#  Buildr::JaxbXjc.dependencies,
+#  Buildr::Bnd.dependencies,
+#  Buildr::Scala::Scalac.dependencies,
+#  Buildr::Scala::Specs.dependencies,
+#  Buildr::Shell::BeanShell.artifact,
+#  Buildr::Clojure.dependencies
+#).each do |path|
+#  file(path).invoke
+#end
 
 ENV['HOME'] = File.expand_path(File.join(File.dirname(__FILE__), '..', 'tmp', 'home'))
 mkpath ENV['HOME']
 
 # Make Scala.version resilient to sandbox reset
-module Buildr::Scala
-  DEFAULT_VERSION = SCALA_VERSION_FOR_SPECS
-
-  class << self
-    def version
-      SCALA_VERSION_FOR_SPECS
-    end
-  end
-
-  class Scalac
-    class << self
-      def use_installed?
-        false
-      end
-    end
-  end
-end
+#module Buildr::Scala
+#  DEFAULT_VERSION = SCALA_VERSION_FOR_SPECS
+#
+#  class << self
+#    def version
+#      SCALA_VERSION_FOR_SPECS
+#    end
+#  end
+#
+#  class Scalac
+#    class << self
+#      def use_installed?
+#        false
+#      end
+#    end
+#  end
+#end
 
 # We need to run all tests inside a _sandbox, tacking a snapshot of Buildr before the test,
 # and restoring everything to its previous state after the test. Damn state changes.

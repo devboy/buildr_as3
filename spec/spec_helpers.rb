@@ -18,17 +18,17 @@
 # so ignore the second attempt to load it.
 unless defined?(SpecHelpers)
 
-  require 'rubygems'
+  #require 'rubygems'
 
   # For testing we use the gem requirements specified on the buildr.gemspec
-  spec = Gem::Specification.load(File.expand_path('../buildr.gemspec', File.dirname(__FILE__)))
+  #spec = Gem::Specification.load(File.expand_path('../buildr.gemspec', File.dirname(__FILE__)))
   # Dependency.version_requirements deprecated in rubygems 1.3.6
-  spec.dependencies.select {|dep| dep.type == :runtime }.each { |dep| gem dep.name, (dep.respond_to?(:requirement) ? dep.requirement.to_s : dep.version_requirements.to_s) }
+  #spec.dependencies.select {|dep| dep.type == :runtime }.each { |dep| gem dep.name, (dep.respond_to?(:requirement) ? dep.requirement.to_s : dep.version_requirements.to_s) }
 
   # Make sure to load from these paths first, we don't want to load any
   # code from Gem library.
-  $LOAD_PATH.unshift File.expand_path('../lib', File.dirname(__FILE__)),
-                     File.expand_path('../addon', File.dirname(__FILE__))
+  #$LOAD_PATH.unshift File.expand_path('../lib', File.dirname(__FILE__)),
+  #                   File.expand_path('../addon', File.dirname(__FILE__))
 
   # Buildr uses autoload extensively, but autoload when running specs creates
   # a problem -- we sandbox $LOADED_FEATURES, so we endup autoloading the same
@@ -37,17 +37,17 @@ unless defined?(SpecHelpers)
   def autoload(symbol, path)
     require path
   end
-  require 'buildr'
+  #require 'buildr'
   # load ecj
-  require 'buildr/java/ecj'
+  #require 'buildr/java/ecj'
   #Make ecj appear as a compiler that doesn't apply:
-  class Buildr::Compiler::Ecj
-    class << self
-      def applies_to?(project, task)
-        false
-      end
-    end
-  end
+  #class Buildr::Compiler::Ecj
+  #  class << self
+  #    def applies_to?(project, task)
+  #      false
+  #    end
+  #  end
+  #end
 
   # Give a chance for plugins to do a few things before requiring the sandbox.
   include SandboxHook if defined?(SandboxHook)
@@ -284,7 +284,7 @@ unless defined?(SpecHelpers)
       AbsolutePathMatcher.new(path)
     end
 
-
+    #require "rspec/matchers"
     # Value covered by range. For example:
     #   (1..5).should cover(3)
     RSpec::Matchers.define :cover do |actual|
