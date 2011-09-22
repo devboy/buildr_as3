@@ -37,7 +37,8 @@ unless defined?(SpecHelpers)
   def autoload(symbol, path)
     require path
   end
-  #require 'buildr'
+  require 'buildr'
+  require 'buildr/as3'
   # load ecj
   #require 'buildr/java/ecj'
   #Make ecj appear as a compiler that doesn't apply:
@@ -284,7 +285,7 @@ unless defined?(SpecHelpers)
       AbsolutePathMatcher.new(path)
     end
 
-    #require "rspec/matchers"
+
     # Value covered by range. For example:
     #   (1..5).should cover(3)
     RSpec::Matchers.define :cover do |actual|

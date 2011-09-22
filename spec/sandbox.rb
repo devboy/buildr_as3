@@ -17,8 +17,6 @@
 # The local repository we use for testing is void of any artifacts, which will break given
 # that the code requires several artifacts. So we establish them first using the real local
 # repository and cache these across test cases.
-require 'buildr'
-
 Buildr.application.instance_eval { @rakefile = File.expand_path('buildfile') }
 repositories.remote << 'http://repo1.maven.org/maven2'
 repositories.remote << 'http://scala-tools.org/repo-releases'
@@ -36,21 +34,21 @@ repositories.remote << 'http://scala-tools.org/repo-releases'
 #require 'buildr/bnd'
 #require 'buildr/jaxb_xjc'
 
-#Java.load # Anything added to the classpath.
-#artifacts(
-#  TestFramework.frameworks.map(&:dependencies).flatten,
-#  JUnit.ant_taskdef,
-#  Buildr::Groovy.dependencies,
-#  Buildr::JaxbXjc.dependencies,
-#  Buildr::Bnd.dependencies,
-#  Buildr::Scala::Scalac.dependencies,
-#  Buildr::Scala::Specs.dependencies,
-#  Buildr::Shell::BeanShell.artifact,
-#  Buildr::Clojure.dependencies
-#).each do |path|
-#  file(path).invoke
-#end
-
+Java.load # Anything added to the classpath.
+artifacts(
+#TestFramework.frameworks.map(&:dependencies).flatten,
+  JUnit.ant_taskdef
+  #Buildr::Groovy.dependencies,
+  #Buildr::JaxbXjc.dependencies,
+  #Buildr::Bnd.dependencies,
+  #Buildr::Scala::Scalac.dependencies,
+  #Buildr::Scala::Specs.dependencies,
+  #Buildr::Shell::BeanShell.artifact,
+  #Buildr::Clojure.dependencies
+).each do |path|
+  file(path).invoke
+end
+#
 ENV['HOME'] = File.expand_path(File.join(File.dirname(__FILE__), '..', 'tmp', 'home'))
 mkpath ENV['HOME']
 
