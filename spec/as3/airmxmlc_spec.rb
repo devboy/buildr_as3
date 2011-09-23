@@ -151,6 +151,4 @@ describe "Buildr::AS3::Compiler::airmxmlc compiler options" do
     compiler.send(:is_test,sources,target,dependencies).should eql(false)
   end
 
-
-
 end
