@@ -40,7 +40,7 @@ end
 
 
 
-describe "Buildr::AS3::Compiler::aircompc compiler options" do
+describe "Buildr::AS3::Compiler::AirCompc compiler options" do
 
   def compile_task
     @compile_task ||= define('foo').compile.using( :aircompc, :flexsdk => FlexSDK.new("4.5.0.20967") )
@@ -151,6 +151,10 @@ describe "Buildr::AS3::Compiler::aircompc compiler options" do
     compiler.send(:is_test,sources,target,dependencies).should eql(false)
   end
 
-
+  after do
+    Buildr.options.debug = nil
+    ENV.delete "debug"
+    ENV.delete "DEBUG"
+  end
 
 end

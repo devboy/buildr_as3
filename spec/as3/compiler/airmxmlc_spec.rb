@@ -38,9 +38,7 @@ describe Buildr::AS3::Compiler::AirMxmlc do
   end
 end
 
-
-
-describe "Buildr::AS3::Compiler::airmxmlc compiler options" do
+describe "Buildr::AS3::Compiler::AirMxmlc compiler options" do
 
   def compile_task
     @compile_task ||= define('foo').compile.using( :airmxmlc, :flexsdk => FlexSDK.new("4.5.0.20967") )
@@ -149,6 +147,12 @@ describe "Buildr::AS3::Compiler::airmxmlc compiler options" do
 
   it "should not identify itself as a test task when it's not" do
     compiler.send(:is_test,sources,target,dependencies).should eql(false)
+  end
+
+  after do
+    Buildr.options.debug = nil
+    ENV.delete "debug"
+    ENV.delete "DEBUG"
   end
 
 end

@@ -151,6 +151,10 @@ describe "Buildr::AS3::Compiler::Compc compiler options" do
     compiler.send(:is_test,sources,target,dependencies).should eql(false)
   end
 
-
+  after do
+    Buildr.options.debug = nil
+    ENV.delete "debug"
+    ENV.delete "DEBUG"
+  end
 
 end
