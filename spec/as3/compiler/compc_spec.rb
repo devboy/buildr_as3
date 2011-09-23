@@ -59,7 +59,7 @@ describe "Buildr::AS3::Compiler::Compc compiler options" do
   end
 
   def dependencies
-    compile_task.dependencies
+    compile_task.as3_dependencies
   end
 
   def sources
