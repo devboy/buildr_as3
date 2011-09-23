@@ -70,7 +70,9 @@ module Buildr
 
         def generate_dependency_args(dependencies) #:nodoc:
           dependency_args = []
-          dependencies.each { |source| dependency_args << "-library-path+=#{source}" }
+          dependencies[:library].each { |source| dependency_args << "-library-path+=#{source}" }
+          dependencies[:external].each { |source| dependency_args << "-external-library-path+=#{source}" }
+          dependencies[:include].each { |source| dependency_args << "-include-libraries+=#{source}" }
           dependency_args
         end
 

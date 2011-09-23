@@ -30,3 +30,5 @@ Buildr::Compiler << Buildr::AS3::Compiler::Mxmlc
 Buildr::Compiler << Buildr::AS3::Compiler::Compc
 Buildr::Compiler << Buildr::AS3::Compiler::AirMxmlc
 Buildr::Compiler << Buildr::AS3::Compiler::AirCompc
+
+require "#{File.dirname(__FILE__)}/compiler/task"
