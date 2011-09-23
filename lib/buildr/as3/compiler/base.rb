@@ -40,19 +40,7 @@ module Buildr
           check_options options, COMPILE_OPTIONS
           flex_sdk = options[:flexsdk].invoke
           output = @project.get_as3_output( is_test(sources,target,dependencies) )
-          cmd_args = []
-          cmd_args << "-jar" << @compiler_jar
-          cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
-          cmd_args << "-output" << output
-          cmd_args << "+configname=air" if @air
-          cmd_args << @main unless @main.nil?
-          cmd_args << "-define+=CONFIG::debug,#{options[:debug]}"
-          cmd_args << "-define+=CONFIG::environment,\"#{Buildr.environment}\""
-          cmd_args << "-load-config" << flex_sdk.flex_config unless @air
-          cmd_args << "-load-config" << flex_sdk.air_config if @air
-          cmd_args += generate_source_args sources
-          cmd_args += generate_dependency_args dependencies
-          cmd_args += flex_compiler_args
+          cmd_args = compiler_args(dependencies, flex_sdk, output, sources)
           unless Buildr.application.options.dryrun
             trace(cmd_args.join(' '))
             Java::Commands.java cmd_args
@@ -70,6 +58,23 @@ module Buildr
         end
 
         private
+
+        def compiler_args(dependencies, flex_sdk, output, sources)
+          cmd_args = []
+          cmd_args << "-jar" << compiler_jar
+          cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
+          cmd_args << "-output" << output
+          cmd_args << "+configname=air" if air
+          cmd_args << @main unless @main.nil?
+          cmd_args << "-define+=CONFIG::debug,#{options[:debug]}"
+          cmd_args << "-define+=CONFIG::environment,\"#{Buildr.environment}\""
+          cmd_args << "-load-config" << flex_sdk.flex_config unless air
+          cmd_args << "-load-config" << flex_sdk.air_config if air
+          cmd_args += generate_source_args sources
+          cmd_args += generate_dependency_args dependencies
+          cmd_args += flex_compiler_args
+          cmd_args
+        end
 
         def flex_compiler_args #:nodoc:
           args = []

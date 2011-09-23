@@ -1,33 +1,33 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'spec_helpers'))
 
-describe Buildr::AS3::Compiler::Mxmlc do
+describe Buildr::AS3::Compiler::Compc do
 
   it 'should not identify itself from source directories' do
     write 'src/main/java/com/example/Test.as', 'package com.example{ class Test {} }'
-    define('foo').compile.compiler.should_not eql(:mxmlc)
+    define('foo').compile.compiler.should_not eql(:compc)
   end
 
   it 'should report the language as :actionscript' do
-    define('foo').compile.using(:mxmlc).language.should eql(:actionscript)
+    define('foo').compile.using(:compc).language.should eql(:actionscript)
   end
 
   it 'should set the target directory to target/bin' do
     define 'foo' do
-      lambda { compile.using(:mxmlc) }.should change { compile.target.to_s }.to(File.expand_path('target/bin'))
+      lambda { compile.using(:compc) }.should change { compile.target.to_s }.to(File.expand_path('target/bin'))
     end
   end
 
   it 'should not override existing target directory' do
     define 'foo' do
       compile.into('classes')
-      lambda { compile.using(:mxmlc) }.should_not change { compile.target }
+      lambda { compile.using(:compc) }.should_not change { compile.target }
     end
   end
 
   it 'should not change existing list of sources' do
     define 'foo' do
       compile.from('sources')
-      lambda { compile.using(:mxmlc) }.should_not change { compile.sources }
+      lambda { compile.using(:compc) }.should_not change { compile.sources }
     end
   end
 
@@ -40,10 +40,10 @@ end
 
 
 
-describe "Buildr::AS3::Compiler::Mxmlc compiler options" do
+describe "Buildr::AS3::Compiler::Compc compiler options" do
 
   def compile_task
-    @compile_task ||= define('foo').compile.using( :mxmlc, :flexsdk => FlexSDK.new("4.5.0.20967") )
+    @compile_task ||= define('foo').compile.using( :compc, :flexsdk => FlexSDK.new("4.5.0.20967") )
   end
 
   def flex_sdk
@@ -66,7 +66,7 @@ describe "Buildr::AS3::Compiler::Mxmlc compiler options" do
     compile_task.sources
   end
 
-  def mxmlc_args
+  def compc_args
     compiler.send(:compiler_args,dependencies,flex_sdk,output,sources)
   end
 
@@ -99,36 +99,36 @@ describe "Buildr::AS3::Compiler::Mxmlc compiler options" do
 
   it 'should use -debug=true argument when debug option is true' do
     compile_task.using(:debug=>true)
-    mxmlc_args.should include('-debug=true')
+    compc_args.should include('-debug=true')
   end
 
   it 'should not use -debug=true argument when debug option is false' do
     compile_task.using(:debug=>false)
-    mxmlc_args.should_not include('-debug=true')
+    compc_args.should_not include('-debug=true')
   end
 
   it 'should define CONFIG::debug,true when debug option is true' do
     compile_task.using(:debug=>true)
-    mxmlc_args.should include('-define+=CONFIG::debug,true')
+    compc_args.should include('-define+=CONFIG::debug,true')
   end
 
    it 'should define CONFIG::debug,false when debug option is false' do
     compile_task.using(:debug=>false)
-    mxmlc_args.should include('-define+=CONFIG::debug,false')
+    compc_args.should include('-define+=CONFIG::debug,false')
   end
 
   it 'should use -warnings=true argument when warnings option is true' do
     compile_task.using(:warnings=>true)
-    mxmlc_args.should_not include('-warnings=false')
+    compc_args.should_not include('-warnings=false')
   end
 
   it 'should not use -warnings=true argument when warnings option is false' do
     compile_task.using(:warnings=>false)
-    mxmlc_args.should include('-warnings=false')
+    compc_args.should include('-warnings=false')
   end
 
   it 'should point to the correct compiler jar' do
-    compiler.instance_eval{ compiler_jar }.should eql( flex_sdk.mxmlc_jar )
+    compiler.instance_eval{ compiler_jar }.should eql( flex_sdk.compc_jar )
   end
 
   it 'should not identify itself as an air compiler' do
@@ -136,15 +136,15 @@ describe "Buildr::AS3::Compiler::Mxmlc compiler options" do
   end
 
   it "should not use +configname=air ever" do
-    mxmlc_args.should_not include('+configname=air')
+    compc_args.should_not include('+configname=air')
   end
 
   it "should not use air config file ever" do
-    mxmlc_args.should_not include(flex_sdk.air_config)
+    compc_args.should_not include(flex_sdk.air_config)
   end
 
   it "should use flex config file by default" do
-    mxmlc_args.should include(flex_sdk.flex_config)
+    compc_args.should include(flex_sdk.flex_config)
   end
 
   it "should not identify itself as a test task when it's not" do

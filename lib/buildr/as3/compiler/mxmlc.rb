@@ -47,13 +47,20 @@ module Buildr
                 :packaging => :swf
 
         def compile(sources, target, dependencies) #:nodoc:
-          @compiler_jar = options[:flexsdk].mxmlc_jar
           COMPILE_OPTIONS << :main
           @main = options[:main]
           super
         end
 
         private
+
+        def compiler_jar
+          options[:flexsdk].mxmlc_jar
+        end
+
+        def air
+          false
+        end
 
         def generate_source_args(sources) #:nodoc:
           source_args = []

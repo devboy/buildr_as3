@@ -40,11 +40,18 @@ module Buildr
                 :packaging => :swc
 
         def compile(sources, target, dependencies) #:nodoc:
-          @compiler_jar = options[:flexsdk].compc_jar
           super
         end
 
         private
+
+        def compiler_jar
+          options[:flexsdk].compc_jar
+        end
+
+        def air
+          false
+        end
 
         def generate_source_args(sources) #:nodoc:
           source_args = []

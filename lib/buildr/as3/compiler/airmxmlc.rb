@@ -44,10 +44,12 @@ module Buildr
                 :target => "bin", :target_ext => "swf",
                 :packaging => :swf
 
-        def compile(sources, target, dependencies) #:nodoc:
-          @air = true
-          super
+        private
+
+        def air
+          true
         end
+
       end
     end
   end
