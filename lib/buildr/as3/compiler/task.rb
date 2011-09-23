@@ -39,6 +39,7 @@ class Buildr::CompileTask
       case spec
         when Hash
           spec.each{ |key,value|
+            raise "key needs to be :library, :external or :include" unless [:library, :external, :include].include? key
             @as3_dependencies[key] |= Buildr.artifacts(value).uniq
             @dependencies |= Buildr.artifacts(value).uniq
           }
