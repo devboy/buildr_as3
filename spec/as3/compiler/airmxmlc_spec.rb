@@ -1,33 +1,33 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', 'spec_helpers'))
+require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'spec_helpers'))
 
-describe Buildr::AS3::Compiler::AirCompc do
+describe Buildr::AS3::Compiler::AirMxmlc do
 
   it 'should not identify itself from source directories' do
     write 'src/main/java/com/example/Test.as', 'package com.example{ class Test {} }'
-    define('foo').compile.compiler.should_not eql(:aircompc)
+    define('foo').compile.compiler.should_not eql(:airmxmlc)
   end
 
   it 'should report the language as :actionscript' do
-    define('foo').compile.using(:aircompc).language.should eql(:actionscript)
+    define('foo').compile.using(:airmxmlc).language.should eql(:actionscript)
   end
 
   it 'should set the target directory to target/bin' do
     define 'foo' do
-      lambda { compile.using(:aircompc) }.should change { compile.target.to_s }.to(File.expand_path('target/bin'))
+      lambda { compile.using(:airmxmlc) }.should change { compile.target.to_s }.to(File.expand_path('target/bin'))
     end
   end
 
   it 'should not override existing target directory' do
     define 'foo' do
       compile.into('classes')
-      lambda { compile.using(:aircompc) }.should_not change { compile.target }
+      lambda { compile.using(:airmxmlc) }.should_not change { compile.target }
     end
   end
 
   it 'should not change existing list of sources' do
     define 'foo' do
       compile.from('sources')
-      lambda { compile.using(:aircompc) }.should_not change { compile.sources }
+      lambda { compile.using(:airmxmlc) }.should_not change { compile.sources }
     end
   end
 
@@ -40,10 +40,10 @@ end
 
 
 
-describe "Buildr::AS3::Compiler::aircompc compiler options" do
+describe "Buildr::AS3::Compiler::airmxmlc compiler options" do
 
   def compile_task
-    @compile_task ||= define('foo').compile.using( :aircompc, :flexsdk => FlexSDK.new("4.5.0.20967") )
+    @compile_task ||= define('foo').compile.using( :airmxmlc, :flexsdk => FlexSDK.new("4.5.0.20967") )
   end
 
   def flex_sdk
@@ -66,7 +66,7 @@ describe "Buildr::AS3::Compiler::aircompc compiler options" do
     compile_task.sources
   end
 
-  def aircompc_args
+  def airmxmlc_args
     compiler.send(:compiler_args,dependencies,flex_sdk,output,sources)
   end
 
@@ -99,36 +99,36 @@ describe "Buildr::AS3::Compiler::aircompc compiler options" do
 
   it 'should use -debug=true argument when debug option is true' do
     compile_task.using(:debug=>true)
-    aircompc_args.should include('-debug=true')
+    airmxmlc_args.should include('-debug=true')
   end
 
   it 'should not use -debug=true argument when debug option is false' do
     compile_task.using(:debug=>false)
-    aircompc_args.should_not include('-debug=true')
+    airmxmlc_args.should_not include('-debug=true')
   end
 
   it 'should define CONFIG::debug,true when debug option is true' do
     compile_task.using(:debug=>true)
-    aircompc_args.should include('-define+=CONFIG::debug,true')
+    airmxmlc_args.should include('-define+=CONFIG::debug,true')
   end
 
    it 'should define CONFIG::debug,false when debug option is false' do
     compile_task.using(:debug=>false)
-    aircompc_args.should include('-define+=CONFIG::debug,false')
+    airmxmlc_args.should include('-define+=CONFIG::debug,false')
   end
 
   it 'should use -warnings=true argument when warnings option is true' do
     compile_task.using(:warnings=>true)
-    aircompc_args.should_not include('-warnings=false')
+    airmxmlc_args.should_not include('-warnings=false')
   end
 
   it 'should not use -warnings=true argument when warnings option is false' do
     compile_task.using(:warnings=>false)
-    aircompc_args.should include('-warnings=false')
+    airmxmlc_args.should include('-warnings=false')
   end
 
   it 'should point to the correct compiler jar' do
-    compiler.instance_eval{ compiler_jar }.should eql( flex_sdk.compc_jar )
+    compiler.instance_eval{ compiler_jar }.should eql( flex_sdk.mxmlc_jar )
   end
 
   it 'should identify itself as an air compiler' do
@@ -136,21 +136,19 @@ describe "Buildr::AS3::Compiler::aircompc compiler options" do
   end
 
   it "should use +configname=air ever" do
-    aircompc_args.should include('+configname=air')
+    airmxmlc_args.should include('+configname=air')
   end
 
   it "should use air config file by default" do
-    aircompc_args.should include(flex_sdk.air_config)
+    airmxmlc_args.should include(flex_sdk.air_config)
   end
 
   it "should not use flex config file by default" do
-    aircompc_args.should_not include(flex_sdk.flex_config)
+    airmxmlc_args.should_not include(flex_sdk.flex_config)
   end
 
   it "should not identify itself as a test task when it's not" do
     compiler.send(:is_test,sources,target,dependencies).should eql(false)
   end
-
-
 
 end
