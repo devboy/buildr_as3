@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{buildr-as3}
-  s.version = "0.2.19"
+  s.version = "0.2.20.pre"
 
-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Dominic Graefen"]
-  s.date = %q{2011-07-26}
+  s.date = %q{2011-09-24}
   s.default_executable = %q{buildr-as3}
   s.description = %q{Build like you code - now supporting ActionScript 3 & Flex}
   s.email = %q{dominic @nospam@ devboy.org}
@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   ]
   s.files = [
     ".document",
+    ".rspec",
     "Gemfile",
     "LICENSE.txt",
     "README.rdoc",
@@ -53,8 +54,18 @@ Gem::Specification.new do |s|
     "lib/buildr/as3/toolkits/apparat.rb",
     "lib/buildr/as3/toolkits/base.rb",
     "lib/buildr/as3/toolkits/flexsdk.rb",
-    "test/helper.rb",
-    "test/test_buildr_as3.rb"
+    "rake/jeweler.rb",
+    "rake/jeweler_prerelease_tasks.rb",
+    "rake/pre_release_gemspec.rb",
+    "rake/pre_release_to_git.rb",
+    "spec/as3/compiler/aircompc_spec.rb",
+    "spec/as3/compiler/airmxmlc_spec.rb",
+    "spec/as3/compiler/compc_spec.rb",
+    "spec/as3/compiler/mxmlc_spec.rb",
+    "spec/as3/compiler/task_spec.rb",
+    "spec/as3/project_spec.rb",
+    "spec/sandbox.rb",
+    "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/devboy/buildr_as3}
   s.licenses = ["MIT"]
@@ -62,8 +73,14 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.6.2}
   s.summary = %q{Buildr extension to allow ActionScript3/Flex development.}
   s.test_files = [
-    "test/helper.rb",
-    "test/test_buildr_as3.rb"
+    "spec/as3/compiler/aircompc_spec.rb",
+    "spec/as3/compiler/airmxmlc_spec.rb",
+    "spec/as3/compiler/compc_spec.rb",
+    "spec/as3/compiler/mxmlc_spec.rb",
+    "spec/as3/compiler/task_spec.rb",
+    "spec/as3/project_spec.rb",
+    "spec/sandbox.rb",
+    "spec/spec_helper.rb"
   ]
 
   if s.respond_to? :specification_version then
@@ -74,14 +91,20 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_development_dependency(%q<buildr>, ["~> 1.4.6"])
-      s.add_development_dependency(%q<rcov>, [">= 0"])
+      s.add_development_dependency(%q<simplecov>, [">= 0"])
+      s.add_development_dependency(%q<simplecov-rcov>, [">= 0"])
+      s.add_development_dependency(%q<rspec>, ["~> 2.1.0"])
+      s.add_development_dependency(%q<ci_reporter>, ["~> 1.6.5"])
       s.add_runtime_dependency(%q<buildr>, [">= 1.4.5"])
     else
       s.add_dependency(%q<shoulda>, [">= 0"])
       s.add_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_dependency(%q<buildr>, ["~> 1.4.6"])
-      s.add_dependency(%q<rcov>, [">= 0"])
+      s.add_dependency(%q<simplecov>, [">= 0"])
+      s.add_dependency(%q<simplecov-rcov>, [">= 0"])
+      s.add_dependency(%q<rspec>, ["~> 2.1.0"])
+      s.add_dependency(%q<ci_reporter>, ["~> 1.6.5"])
       s.add_dependency(%q<buildr>, [">= 1.4.5"])
     end
   else
@@ -89,7 +112,10 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<bundler>, ["~> 1.0.0"])
     s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
     s.add_dependency(%q<buildr>, ["~> 1.4.6"])
-    s.add_dependency(%q<rcov>, [">= 0"])
+    s.add_dependency(%q<simplecov>, [">= 0"])
+    s.add_dependency(%q<simplecov-rcov>, [">= 0"])
+    s.add_dependency(%q<rspec>, ["~> 2.1.0"])
+    s.add_dependency(%q<ci_reporter>, ["~> 1.6.5"])
     s.add_dependency(%q<buildr>, [">= 1.4.5"])
   end
 end
