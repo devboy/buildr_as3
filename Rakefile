@@ -24,6 +24,8 @@ end
 Jeweler::RubygemsDotOrgTasks.new
 Jeweler::PrereleaseTasks.new
 
+task :prerelease => 'rubygems:release'
+
 require 'rspec/core'
 require 'rspec/core/rake_task'
 require 'ci/reporter/rake/rspec'

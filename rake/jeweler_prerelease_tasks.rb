@@ -1,6 +1,7 @@
 require 'rake'
 require 'rake/tasklib'
 require File.dirname(__FILE__)+"/jeweler"
+
 class Jeweler
   class PrereleaseTasks < Rake::TaskLib
     attr_accessor :jeweler
@@ -34,9 +35,8 @@ class Jeweler
       task :is_prerelease_version => :version_required do
         abort "it's not a prerelease version" unless jeweler.is_prerelease_version?
       end
-
       desc "Make a prerelease to rubygems."
-      task :prerelease => [:is_prerelease_version, 'gemspec:prerelease', 'git:prerelease', 'rubygems:release']
+      task :prerelease => [:is_prerelease_version, 'gemspec:prerelease', 'git:prerelease']
     end
   end
 end
