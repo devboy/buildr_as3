@@ -36,7 +36,7 @@ class Jeweler
       end
 
       desc "Make a prerelease to rubygems."
-      task :prerelease => [:is_prerelease_version, 'gemspec:prerelease', 'git:prerelease']
+      task :prerelease => [:is_prerelease_version, 'gemspec:prerelease', 'git:prerelease', 'rubygems:release']
     end
   end
 end

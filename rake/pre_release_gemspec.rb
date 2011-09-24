@@ -22,7 +22,7 @@ class Jeweler
         regenerate_gemspec!
         commit_gemspec! if gemspec_changed?
 
-        output.puts "Pushing master to origin"
+        output.puts "Pushing develop to origin"
         repo.push
       end
 
