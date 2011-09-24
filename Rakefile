@@ -10,6 +10,7 @@ end
 require 'rake'
 
 require 'jeweler'
+require File.dirname(__FILE__)+"/rake/jeweler_prerelease_tasks"
 Jeweler::Tasks.new do |gem|
   gem.name = "buildr-as3"
   gem.homepage = "http://github.com/devboy/buildr_as3"
@@ -21,6 +22,7 @@ Jeweler::Tasks.new do |gem|
   gem.add_runtime_dependency("buildr",">=1.4.5")
 end
 Jeweler::RubygemsDotOrgTasks.new
+Jeweler::PrereleaseTasks.new
 
 require 'rspec/core'
 require 'rspec/core/rake_task'
