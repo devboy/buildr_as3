@@ -35,8 +35,16 @@ class Jeweler
       task :is_prerelease_version => :version_required do
         abort "it's not a prerelease version" unless jeweler.is_prerelease_version?
       end
+
+      namespace :rubygems do
+        desc "Release gem to Gemcutter"
+        task :release => [:gemspec, :build] do
+          jeweler.release_gem_to_rubygems
+        end
+      end
+
       desc "Make a prerelease to rubygems."
-      task :prerelease => [:is_prerelease_version, 'gemspec:prerelease', 'git:prerelease']
+      task :prerelease => [:is_prerelease_version, 'gemspec:prerelease', 'git:prerelease', 'rubygems:release']
     end
   end
 end
