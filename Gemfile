@@ -11,6 +11,8 @@ group :development do
   gem "jeweler", "~> 1.5.2"
   gem "buildr", "~> 1.4.6"
   #gem "rcov", ">= 0"
+  gem "simplecov", :require => false
+  gem "simplecov-rcov", :require => false
   gem "rspec", "~> 2.1.0"
   gem "ci_reporter", "~> 1.6.5"
 end

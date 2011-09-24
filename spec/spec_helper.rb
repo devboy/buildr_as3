@@ -30,6 +30,12 @@ unless defined?(SpecHelpers)
   #$LOAD_PATH.unshift File.expand_path('../lib', File.dirname(__FILE__)),
   #                   File.expand_path('../addon', File.dirname(__FILE__))
 
+  require 'simplecov'
+  require 'simplecov-rcov'
+  SimpleCov.formatter = SimpleCov::Formatter::RcovFormatter
+  SimpleCov.root(  File.dirname( __FILE__) + '/..' )
+  SimpleCov.start
+
   # Buildr uses autoload extensively, but autoload when running specs creates
   # a problem -- we sandbox $LOADED_FEATURES, so we endup autoloading the same
   # module twice. This turns autoload into a require, which is not the right
@@ -37,8 +43,8 @@ unless defined?(SpecHelpers)
   def autoload(symbol, path)
     require path
   end
-  require 'buildr'
-  require 'buildr/as3'
+  #require 'buildr'
+  require File.dirname( __FILE__) + '/../lib/buildr/as3'
   # load ecj
   #require 'buildr/java/ecj'
   #Make ecj appear as a compiler that doesn't apply:
