@@ -19,12 +19,10 @@ Jeweler::Tasks.new do |gem|
   gem.description = "Build like you code - now supporting ActionScript 3 & Flex"
   gem.email = "dominic @nospam@ devboy.org"
   gem.authors = ["Dominic Graefen"]
-  gem.add_runtime_dependency("buildr",">=1.4.5")
+  gem.add_runtime_dependency("buildr",">=1.4.6")
 end
 Jeweler::RubygemsDotOrgTasks.new
 Jeweler::PrereleaseTasks.new
-
-task :prerelease => 'rubygems:release'
 
 require 'rspec/core'
 require 'rspec/core/rake_task'
