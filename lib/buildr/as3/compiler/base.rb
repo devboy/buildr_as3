@@ -40,7 +40,7 @@ module Buildr
           check_options options, COMPILE_OPTIONS
           flex_sdk = options[:flexsdk].invoke
           output = @project.get_as3_output( is_test(sources,target,dependencies) )
-          cmd_args = compiler_args(dependencies, flex_sdk, output, sources)
+          cmd_args = compiler_args(@project.compile.as3_dependencies, flex_sdk, output, sources)
           unless Buildr.application.options.dryrun
             trace(cmd_args.join(' '))
             Java::Commands.java cmd_args
@@ -59,7 +59,7 @@ module Buildr
 
         private
 
-        def compiler_args(dependencies, flex_sdk, output, sources)
+        def compiler_args(as3_dependencies, flex_sdk, output, sources)
           cmd_args = []
           cmd_args << "-jar" << compiler_jar
           cmd_args << "+flexlib" << "#{flex_sdk.home}/frameworks"
@@ -71,7 +71,7 @@ module Buildr
           cmd_args << "-load-config" << flex_sdk.flex_config unless air
           cmd_args << "-load-config" << flex_sdk.air_config if air
           cmd_args += generate_source_args sources
-          cmd_args += generate_dependency_args dependencies
+          cmd_args += generate_dependency_args as3_dependencies
           cmd_args += flex_compiler_args
           cmd_args
         end
