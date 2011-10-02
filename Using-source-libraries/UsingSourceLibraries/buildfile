@@ -1,6 +1,6 @@
 require "buildr/as3"
 
-define "UsingSWCLibraries" do
+define "UsingSourceLibraries" do
 
   compile.using :mxmlc,
                 :flexsdk => FlexSDK.new("4.5.0.20967"),
