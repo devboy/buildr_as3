@@ -1,11 +1,11 @@
-    require "buildr/as3"
+require "buildr/as3"
 
-    define "UsingSWCLibraries" do
+define "UsingSWCLibraries" do
 
-      compile.using :mxmlc,
-                    :flexsdk => FlexSDK.new("4.5.0.20967"),
-                    :main => _(:source, :main, :as3, "Main.as")
+  compile.using :mxmlc,
+                :flexsdk => FlexSDK.new("4.5.0.20967"),
+                :main => _(:source, :main, :as3, "Main.as")
 
-      compile.with _(:lib,:main,:as3,:swcs,"greensock.swc")
+  compile.with _(:lib, :main, :as3, :swcs, "greensock.swc")
 
-    end
+end
