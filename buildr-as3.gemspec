@@ -4,15 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{buildr-as3}
-  s.version = "0.2.20.pre"
+  s.name = "buildr-as3"
+  s.version = "0.2.21.pre"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Dominic Graefen"]
-  s.date = %q{2011-09-24}
-  s.default_executable = %q{buildr-as3}
-  s.description = %q{Build like you code - now supporting ActionScript 3 & Flex}
-  s.email = %q{dominic @nospam@ devboy.org}
+  s.date = "2011-10-02"
+  s.description = "Build like you code - now supporting ActionScript 3 & Flex"
+  s.email = "dominic @nospam@ devboy.org"
   s.executables = ["buildr-as3"]
   s.extra_rdoc_files = [
     "LICENSE.txt",
@@ -67,11 +66,11 @@ Gem::Specification.new do |s|
     "spec/sandbox.rb",
     "spec/spec_helper.rb"
   ]
-  s.homepage = %q{http://github.com/devboy/buildr_as3}
+  s.homepage = "http://github.com/devboy/buildr_as3"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.6.2}
-  s.summary = %q{Buildr extension to allow ActionScript3/Flex development.}
+  s.rubygems_version = "1.8.10"
+  s.summary = "Buildr extension to allow ActionScript3/Flex development."
   s.test_files = [
     "spec/as3/compiler/aircompc_spec.rb",
     "spec/as3/compiler/airmxmlc_spec.rb",
@@ -95,7 +94,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<simplecov-rcov>, [">= 0"])
       s.add_development_dependency(%q<rspec>, ["~> 2.1.0"])
       s.add_development_dependency(%q<ci_reporter>, ["~> 1.6.5"])
-      s.add_runtime_dependency(%q<buildr>, [">= 1.4.5"])
+      s.add_runtime_dependency(%q<buildr>, [">= 1.4.6"])
     else
       s.add_dependency(%q<shoulda>, [">= 0"])
       s.add_dependency(%q<bundler>, ["~> 1.0.0"])
@@ -105,7 +104,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<simplecov-rcov>, [">= 0"])
       s.add_dependency(%q<rspec>, ["~> 2.1.0"])
       s.add_dependency(%q<ci_reporter>, ["~> 1.6.5"])
-      s.add_dependency(%q<buildr>, [">= 1.4.5"])
+      s.add_dependency(%q<buildr>, [">= 1.4.6"])
     end
   else
     s.add_dependency(%q<shoulda>, [">= 0"])
@@ -116,7 +115,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<simplecov-rcov>, [">= 0"])
     s.add_dependency(%q<rspec>, ["~> 2.1.0"])
     s.add_dependency(%q<ci_reporter>, ["~> 1.6.5"])
-    s.add_dependency(%q<buildr>, [">= 1.4.5"])
+    s.add_dependency(%q<buildr>, [">= 1.4.6"])
   end
 end
 
