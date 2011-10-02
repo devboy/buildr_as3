@@ -1,0 +1,9 @@
+    require "buildr/as3"
+
+    define "RedCircle" do
+
+      compile.using :mxmlc,
+                    :flexsdk => FlexSDK.new("4.5.0.20967"),
+                    :main => _(:source,:main,:as3,"Main.as")
+
+    end
