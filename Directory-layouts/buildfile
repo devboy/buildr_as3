@@ -1,0 +1,11 @@
+require 'buildr/as3'
+
+MY_LAYOUT = Layout::Default.new
+MY_LAYOUT[:source,:main,:as3] = "src"
+MY_LAYOUT[:source,:test,:as3] = "test"
+
+define "Directory-layouts", :layout => MY_LAYOUT do
+  compile.using :mxmlc,
+                :flexsdk => FlexSDK.new("4.5.0.20967"),
+                :main => _(:src,"Main.as")
+end
