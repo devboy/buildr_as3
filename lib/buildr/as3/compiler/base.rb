@@ -40,7 +40,7 @@ module Buildr
           check_options options, COMPILE_OPTIONS
           flex_sdk = options[:flexsdk].invoke
           output = @project.get_as3_output( is_test(sources,target,dependencies) )
-          cmd_args = compiler_args(@project.compile.as3_dependencies, flex_sdk, output, sources)
+          cmd_args = compiler_args(get_as3_dependencies(sources,target,dependencies), flex_sdk, output, sources)
           unless Buildr.application.options.dryrun
             trace(cmd_args.join(' '))
             Java::Commands.java cmd_args
@@ -58,6 +58,10 @@ module Buildr
         end
 
         private
+
+        def get_as3_dependencies(sources, target, dependencies)
+          is_test(sources,target,dependencies) ? @project.test.compile.as3_dependencies : @project.compile.as3_dependencies
+        end
 
         def compiler_args(as3_dependencies, flex_sdk, output, sources)
           cmd_args = []

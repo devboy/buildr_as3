@@ -22,6 +22,16 @@ describe Buildr::CompileTask do
     define('foo').compile.with(:library => "myLibrary.swc").as3_dependencies[:library].should include(File.join( pwd, "myLibrary.swc"))
   end
 
+  it "should add dependencies array to library type when :library is specified" do
+    define('foo').compile.with(:library => ["myLibrary1.swc","myLibrary2.swc"]).as3_dependencies[:library].
+        should include(File.join( pwd, "myLibrary1.swc"),File.join( pwd, "myLibrary2.swc"))
+  end
+
+  it "should add dependencies array to @dependencies type when :library is specified" do
+    define('foo').compile.with(:library => ["myLibrary1.swc","myLibrary2.swc"]).dependencies.
+        should include(File.join( pwd, "myLibrary1.swc"),File.join( pwd, "myLibrary2.swc"))
+  end
+
   it "should add dependency to @dependencies when :library is specified" do
     define('foo').compile.with(:library => "myLibrary.swc").dependencies.should include(File.join( pwd, "myLibrary.swc"))
   end

@@ -38,14 +38,14 @@ class Buildr::CompileTask
     specs.each do |spec|
       case spec
         when Hash
-          spec.each{ |key,value|
+          spec.each { |key,value|
             raise "key needs to be :library, :external or :include" unless [:library, :external, :include].include? key
-            @as3_dependencies[key] |= Buildr.artifacts(value).uniq
-            @dependencies |= Buildr.artifacts(value).uniq
+            @as3_dependencies[key] += Buildr.artifacts(value).uniq
+            @dependencies += Buildr.artifacts(value).uniq
           }
         else
-          @as3_dependencies[:library] |= Buildr.artifacts(spec).uniq
-          @dependencies |= Buildr.artifacts(spec).uniq
+          @as3_dependencies[:library] += Buildr.artifacts(spec).uniq
+          @dependencies += Buildr.artifacts(spec).uniq
       end
     end
     self
