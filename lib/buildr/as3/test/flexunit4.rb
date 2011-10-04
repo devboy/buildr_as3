@@ -45,7 +45,7 @@ module Buildr
             "com.adobe.flexunit:flexunitUnitTasks:jar:#{VERSION}"
           end
 
-          def swc_dependencies
+          def swcs
             [
                 "com.adobe.flexunit:flexunit:swc:as3_#{FLEX_SDK_VERSION}:#{VERSION}",
                 "com.adobe.flexunit:flexunit:swc:flex_#{FLEX_SDK_VERSION}:#{VERSION}",
@@ -81,8 +81,12 @@ module Buildr
           project_dir = Dir.getwd
           Dir.chdir report_dir
 
-          taskdef = Buildr.artifact(FlexUnit4.flexunit_taskdef)
-          taskdef.invoke
+          unless options[:antjar]
+            taskdef = Buildr.artifact(FlexUnit4.flexunit_taskdef)
+            taskdef.invoke
+          else
+            taskdef = options[:antjar]
+          end
 
           player = "air" if [:airmxmlc, :airompc].include?(task.project.compile.compiler) || options[:player] == "air"
           player ||= "flash"
@@ -103,9 +107,9 @@ module Buildr
                          :display => options[:display] || 99,
                          :swf => task.project.get_as3_output(true)
 
-                         ant.taskdef :name=>'junitreport',
-                                     :classname=>'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
-                                     :classpath=>Buildr.artifacts(JUnit.ant_taskdef).each(&:invoke).map(&:to_s).join(File::PATH_SEPARATOR)
+            ant.taskdef :name=>'junitreport',
+                        :classname=>'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
+                        :classpath=>Buildr.artifacts(JUnit.ant_taskdef).each(&:invoke).map(&:to_s).join(File::PATH_SEPARATOR)
 
             unless options[:htmlreport] == false
               ant.junitreport :todir => report_dir do

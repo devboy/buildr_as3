@@ -5,7 +5,6 @@ buildr_as3.iml
 .DS_Store
 
 #rspec
-test
 tmp
 
 # rcov generated
