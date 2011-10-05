@@ -4,10 +4,14 @@ custom_layout = Layout::Default.new
 custom_layout[:source,:main,:as3] = "src"
 custom_layout[:source,:test,:as3] = "test"
 
+
+custom_layout[:source] = "abc"
+custom_layout[:source,:def] # "abc/def"
+
 define "Directory-layouts", :layout => custom_layout do
 
   compile.using :mxmlc,
                 :flexsdk => FlexSDK.new("4.5.0.20967"),
                 :main => _(:src,"Main.as")
-
+  compile.into _(:tryharder)
 end

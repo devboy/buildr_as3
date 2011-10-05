@@ -1,7 +1,5 @@
 require "buildr/as3"
 
-custom_layout = Layout::Default.new
-
 define "UsingSourceLibraries" do
 
   compile.using :mxmlc,
@@ -9,5 +7,4 @@ define "UsingSourceLibraries" do
                 :main => _(:source, :main, :as3, "Main.as")
 
   compile.from _(:lib, :main, :as3, :RedCircle)
-  compile.into(_(:flash,:bin))
 end
