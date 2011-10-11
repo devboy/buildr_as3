@@ -1,5 +1,7 @@
 require "buildr/as3"
 
+puts ENV['username']
+
 define "RedCircle" do
 
   compile.using :mxmlc,
