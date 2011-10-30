@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "buildr-as3"
-  s.version = "0.2.22.pre"
+  s.version = "0.2.23.pre"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Dominic Graefen"]
-  s.date = "2011-10-03"
+  s.date = "2011-10-30"
   s.description = "Build like you code - now supporting ActionScript 3 & Flex"
   s.email = "dominic @nospam@ devboy.org"
   s.executables = ["buildr-as3"]
@@ -36,7 +36,6 @@ Gem::Specification.new do |s|
     "lib/buildr/as3/compiler/mxmlc.rb",
     "lib/buildr/as3/compiler/task.rb",
     "lib/buildr/as3/doc.rb",
-    "lib/buildr/as3/doc/asdoc.rb",
     "lib/buildr/as3/ide.rb",
     "lib/buildr/as3/ide/fdt4.rb",
     "lib/buildr/as3/packaging.rb",
@@ -69,7 +68,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/devboy/buildr_as3"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.10"
+  s.rubygems_version = "1.8.11"
   s.summary = "Buildr extension to allow ActionScript3/Flex development."
   s.test_files = [
     "spec/as3/compiler/aircompc_spec.rb",
