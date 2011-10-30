@@ -31,7 +31,7 @@ module Buildr
       # * :debug       -- Generates bytecode with debugging information.  Set from the debug environment variable/global option.
       # * :flexsdk     -- Specify an FlexSDK Artifact of the type Buildr::AS3::Flex::FlexSDK
       # * :apparat     -- Specify an Apparat Artifact of the type Buildr::AS3::Apparat::ApparatToolkit (this is only necessary if you want to make use of the apparat-toolkit)
-      # * :other       -- Array of options passed to the compiler (e.g. ['-compiler.incremental=true', '-static-link-runtime-shared-libraries=true', '-optimize'])
+      # * :args       -- Array of options passed to the compiler (e.g. ['-compiler.incremental=true', '-static-link-runtime-shared-libraries=true', '-optimize'])
       class Compc < FlexCompilerBase
 
         specify :language => :actionscript,

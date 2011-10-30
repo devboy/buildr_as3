@@ -28,7 +28,7 @@ module Buildr
     module Compiler
       class FlexCompilerBase < Buildr::Compiler::Base #:nodoc:
 
-        COMPILE_OPTIONS = [:warnings, :debug, :other, :flexsdk, :apparat, :output]
+        COMPILE_OPTIONS = [:warnings, :debug, :args, :flexsdk, :apparat, :output]
 
         def initialize(project, options) #:nodoc:
           super
@@ -84,7 +84,7 @@ module Buildr
           args = []
           args << '-warnings=false' unless options[:warnings]
           args << '-debug=true' if options[:debug]
-          args + Array(options[:other]) + Array(options[:flexsdk].default_options)
+          args + Array(options[:args]) + Array(options[:flexsdk].default_options)
         end
 
         def is_test( sources, target, dependencies )

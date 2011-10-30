@@ -37,7 +37,7 @@ module Buildr
       # * :flexsdk     -- Specify an FlexSDK Artifact of the type Buildr::AS3::Flex::FlexSDK
       # * :apparat     -- Specify an Apparat Artifact of the type Buildr::AS3::Apparat::ApparatToolkit
       # (this is only necessary if you want to make use of the apparat-toolkit)
-      # * :other       -- Array of options passed to the compiler
+      # * :args       -- Array of options passed to the compiler
       # (e.g. ['-compiler.incremental=true', '-static-link-runtime-shared-libraries=true', '-optimize'])
       class Mxmlc < FlexCompilerBase
 
