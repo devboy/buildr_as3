@@ -1,29 +1,68 @@
-#
-# Copyright (C) 2011 by Dominic Graefen / http://devboy.org
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#
+require 'buildr/core/doc'
 
-require "buildr"
+module Buildr
+  module Doc
 
-require "#{File.dirname(__FILE__)}/doc/asdoc"
+    module AsdocDefaults
+      include Extension
 
-class Buildr::Project
-    include Buildr::AS3::Doc::AsDoc
+      after_define(:asdoc => :doc) do |project|
+        if project.doc.engine? Asdoc
+          options = project.doc.options
+          options[:maintitle] = (project.comment || project.name) unless options[:maintitle]
+        end
+      end
+    end
+
+    class Asdoc < Base
+
+      specify :language => :actionscript, :source_ext => ["as", "mxml"]
+
+      def generate(sources, target, options = {})
+
+        flexsdk = @project.compile.options[:flexsdk].invoke
+        cmd_args = []
+        cmd_args << "-jar" << flexsdk.asdoc_jar
+        cmd_args << "+flexlib" << "#{flexsdk.home}/frameworks"
+        cmd_args << "-load-config" << flexsdk.flex_config
+        cmd_args << "-main-title" << options[:maintitle]
+        cmd_args << "-window-title" << options[:windowtitle] if options.has_key? :windowtitle
+        cmd_args += generate_source_args @project.compile.sources
+        cmd_args += generate_dependency_args @project.compile.dependencies
+        cmd_args += options[:args] if options.has_key? :args
+        cmd_args << "-output" << target
+
+        unless Buildr.application.options.dryrun
+          info "Generating ASDoc for #{project.name}"
+          trace (['java'] + cmd_args).join(' ')
+          Java.load
+          Java::Commands.java cmd_args
+        end
+
+      end
+
+      private
+
+      def generate_source_args(sources) #:nodoc:
+        source_args = []
+        sources.each { |source|
+          source_args << "-source-path+=#{source}"
+          source_args << "-doc-sources+=#{source}"
+        }
+        source_args
+      end
+
+      def generate_dependency_args(dependencies) #:nodoc:
+        dependency_args = []
+        dependencies.each { |source| dependency_args << "-library-path+=#{source}" }
+        dependency_args
+      end
+    end
+  end
+
+  class Project
+    include AsdocDefaults
+  end
 end
+
+Buildr::Doc.engines << Buildr::Doc::Asdoc
