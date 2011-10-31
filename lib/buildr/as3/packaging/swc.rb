@@ -27,7 +27,7 @@ module Buildr
   module AS3
     module Packaging
 
-      class SwcTask < Rake::FileTask
+      class SwcTask < Buildr::ZipTask
 
         include Extension
 
@@ -38,7 +38,7 @@ module Buildr
           super
           enhance do
             fail "File not found: #{src_swc}" unless File.exists? src_swc
-            FileUtils.cp(src_swc, target_swc)
+            merge src_swc
           end
         end
 
