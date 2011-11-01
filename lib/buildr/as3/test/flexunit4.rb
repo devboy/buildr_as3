@@ -105,7 +105,7 @@ module Buildr
                          :localTrusted => options[:localTrusted] || true,
                          :headless => options[:headless] || false,
                          :display => options[:display] || 99,
-                         :port => options[:port] || 1028,
+                         :port => options[:port] || 1024,
                          :swf => task.project.get_as3_output(true)
 
             ant.taskdef :name=>'junitreport',
