@@ -37,22 +37,24 @@ module Buildr
       # * :htmlreport     -- [Boolean] set to true if you want to create a JUnit HTML report
       class FlexUnit4 < TestFramework::AS3
 
-        VERSION = '4.1.0_RC2-4'
-        FLEX_SDK_VERSION = '4.1.0.16076'
+        DEFAULT_FLEXUNIT_VERSION = '4.1.0-8'
+        DEFAULT_FLEX_SDK_VERSION = '4.1.0.16076'
 
         class << self
-          def flexunit_taskdef #:nodoc:
-            "com.adobe.flexunit:flexunitUnitTasks:jar:#{VERSION}"
+
+          def flexunit_tasks flexunit_version=DEFAULT_FLEXUNIT_VERSION
+            "com.adobe.flexunit:flexUnitTasks:jar:#{flexunit_version}"
           end
 
-          def swcs
+          def swcs flexunit_version=DEFAULT_FLEXUNIT_VERSION, flexsdk_version=DEFAULT_FLEX_SDK_VERSION
             [
-                "com.adobe.flexunit:flexunit:swc:as3_#{FLEX_SDK_VERSION}:#{VERSION}",
-                "com.adobe.flexunit:flexunit:swc:flex_#{FLEX_SDK_VERSION}:#{VERSION}",
-                "com.adobe.flexunit:flexunit-aircilistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}",
-                "com.adobe.flexunit:flexunit-cilistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}",
-                "com.adobe.flexunit:flexunit-flexcoverlistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}",
-                "com.adobe.flexunit:flexunit-uilistener:swc:#{FLEX_SDK_VERSION}:#{VERSION}"
+                "com.adobe.flexunit:flexunit-cilistener:swc:#{flexsdk_version}:#{flexunit_version}",
+                "com.adobe.flexunit:flexunit-aircilistener:swc:#{flexsdk_version}:#{flexunit_version}",
+                "com.adobe.flexunit:flexunit-as3:swc:#{flexsdk_version}:#{flexunit_version}",
+                "com.adobe.flexunit:flexunit-flex:swc:#{flexsdk_version}:#{flexunit_version}",
+                "com.adobe.flexunit:flexunit-flexcoverlistener:swc:#{flexsdk_version}:#{flexunit_version}",
+                "com.adobe.flexunit:flexunit-uilistener:swc:#{flexsdk_version}:#{flexunit_version}",
+                "com.adobe.flexunit:fluint-extensions:swc:#{flexsdk_version}:#{flexunit_version}",
             ]
           end
         end
@@ -82,7 +84,7 @@ module Buildr
           Dir.chdir report_dir
 
           unless options[:antjar]
-            taskdef = Buildr.artifact(FlexUnit4.flexunit_taskdef)
+            taskdef = Buildr.artifact(FlexUnit4.flexunit_tasks options[:version] || DEFAULT_FLEXUNIT_VERSION)
             taskdef.invoke
           else
             taskdef = options[:antjar]
@@ -138,4 +140,6 @@ module Buildr
       end
     end
   end
+
+  FlexUnit4 = Buildr::AS3::Test::FlexUnit4
 end
