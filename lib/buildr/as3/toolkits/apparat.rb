@@ -23,9 +23,11 @@ module Buildr
   module AS3
     module Toolkits
       class ApparatToolkit < Buildr::AS3::Toolkits::ZipToolkiteBase
+        DEFAULT_SCALA_VERSION = "2.8.0"
+
         attr_reader :home, :asmifier, :concrete, :coverage, :dump,
                     :jitb, :reducer, :stripper, :tdsi, :asm_swc,
-                    :ersatz_swc, :lzma_decoder_swc, :scala_home
+                    :ersatz_swc, :lzma_decoder_swc
 
         def initialize(version)
           @version = version
@@ -39,6 +41,21 @@ module Buildr
           @url ||= generate_url_from_version @version
           super
           self
+        end
+
+        def scala_dependencies
+          Buildr.repositories.remote << 'http://scala-tools.org/repo-releases'
+          version = DEFAULT_SCALA_VERSION
+          Buildr.artifacts('org.scala-lang:scala-library:jar:' + version).
+              map { |a|
+                a.install
+                a.to_s
+              }
+        end
+
+
+        def apparat_dependencies
+          Dir.glob("#{@home}/*.jar")
         end
 
         private
@@ -69,43 +86,32 @@ module Buildr
       module ApparatTasks
         include Extension
 
-        first_time do
-          Project.local_task('apparat_tdsi')
-          Project.local_task('apparat_reducer')
-        end
-
-        before_define do |project|
-        end
-
-        after_define do |project|
-        end
-
         def apparat_tdsi(options = {})
           output = project.get_as3_output
-          apparat_tk = compile.options[:apparat].invoke
+          compile.options[:apparat].invoke
           cmd_args = []
-          cmd_args << "#{apparat_tk.tdsi}"
+          cmd_args << "apparat.tools.tdsi.TurboDieselSportInjection"
           cmd_args << "-i #{output}"
           cmd_args << "-o #{output}"
           reserved = []
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
-                cmd_args << "-#{key} #{value}"
+            cmd_args << "-#{key}" << "#{value}"
           end
           call_system(cmd_args)
         end
 
         def apparat_reducer(options ={})
           output = project.get_as3_output
-          apparat_tk = compile.options[:apparat].invoke
+          compile.options[:apparat].invoke
           cmd_args = []
-          cmd_args << "#{apparat_tk.reducer}"
+          cmd_args << "apparat.tools.reducer.Reducer"
           cmd_args << "-i #{output}"
           cmd_args << "-o #{output}"
           reserved = []
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
-                cmd_args << "-#{key} #{value}"
+            cmd_args << "-#{key}" << "#{value}"
           end
           call_system(cmd_args)
         end
@@ -113,9 +119,9 @@ module Buildr
         private
 
         def call_system(args)
-          trace("Calling APPARAT: " + args.join(" "))
-          unless system(args.join(" "))
-            puts "Failed to execute apparat:\n#{args.join(" ")}"
+          unless Buildr.application.options.dryrun
+            cp = compile.options[:apparat].scala_dependencies + compile.options[:apparat].apparat_dependencies
+            sh (['java', '-classpath', cp.join(":")] + args).join(" ")
           end
         end
 
