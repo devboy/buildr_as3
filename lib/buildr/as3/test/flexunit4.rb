@@ -46,12 +46,12 @@ module Buildr
             "com.adobe.flexunit:flexUnitTasks:jar:#{flexunit_version}"
           end
 
-          def swcs flexunit_version=DEFAULT_FLEXUNIT_VERSION, flexsdk_version=DEFAULT_FLEX_SDK_VERSION
+          def swcs flexunit_version=DEFAULT_FLEXUNIT_VERSION, flexsdk_version=DEFAULT_FLEX_SDK_VERSION, type=:as3
+            raise "type has to be :as3 or :flex" unless [:flex,:as3].include? type
             [
                 "com.adobe.flexunit:flexunit-cilistener:swc:#{flexsdk_version}:#{flexunit_version}",
                 "com.adobe.flexunit:flexunit-aircilistener:swc:#{flexsdk_version}:#{flexunit_version}",
-                "com.adobe.flexunit:flexunit-as3:swc:#{flexsdk_version}:#{flexunit_version}",
-                "com.adobe.flexunit:flexunit-flex:swc:#{flexsdk_version}:#{flexunit_version}",
+                "com.adobe.flexunit:flexunit-#{type.to_s}:swc:#{flexsdk_version}:#{flexunit_version}",
                 "com.adobe.flexunit:flexunit-flexcoverlistener:swc:#{flexsdk_version}:#{flexunit_version}",
                 "com.adobe.flexunit:flexunit-uilistener:swc:#{flexsdk_version}:#{flexunit_version}",
                 "com.adobe.flexunit:fluint-extensions:swc:#{flexsdk_version}:#{flexunit_version}",
