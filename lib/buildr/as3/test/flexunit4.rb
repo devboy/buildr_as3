@@ -62,7 +62,7 @@ module Buildr
         def tests(dependencies) #:nodoc:
           candidates = []
           task.project.test.compile.sources.each do |source|
-            files = Dir["#{source}/**/*Test.as"] + Dir["#{source}/**/*Test.mxml"]
+            files = Dir["#{source}/**/*Test.as"] + Dir["#{source}/**/*Tests.as"]
             files.each { |item|
               if File.dirname(item) == source
                 candidates << File.basename(item, '.*')
@@ -71,7 +71,6 @@ module Buildr
               end
             }
           end
-
           candidates
         end
 
@@ -142,4 +141,5 @@ module Buildr
   end
 
 end
+
 Object::FlexUnit4 = Buildr::AS3::Test::FlexUnit4
