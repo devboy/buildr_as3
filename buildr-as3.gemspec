@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "buildr-as3"
-  s.version = "0.2.29.pre"
+  s.version = "0.2.30.pre"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Dominic Graefen"]
