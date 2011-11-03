@@ -141,5 +141,5 @@ module Buildr
     end
   end
 
-  FlexUnit4 = Buildr::AS3::Test::FlexUnit4
 end
+Object::FlexUnit4 = Buildr::AS3::Test::FlexUnit4
