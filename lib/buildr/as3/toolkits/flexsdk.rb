@@ -85,7 +85,14 @@ module Buildr
         def generate_url_from_version(version)
           version_major = version.split(".")[0]
           version_minor = version.split(".")[1]
-          version_id = version_major == "4" && version_minor == "5" ? "4.5" : version_major
+          version_id = version_major
+          if version_major == "4"
+            if version_minor == "5"
+              version_id = "4.5"
+            elsif version_minor == "6"
+              version_id = "4.6"
+            end
+          end
           "http://fpdownload.adobe.com/pub/flex/sdk/builds/flex#{version_id}/flex_sdk_#{version}.zip"
         end
 
