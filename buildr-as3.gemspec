@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "buildr-as3"
-  s.version = "0.2.31.pre"
+  s.version = "0.2.32.pre"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Dominic Graefen"]
-  s.date = "2011-12-10"
+  s.date = "2012-02-19"
   s.description = "Build like you code - now supporting ActionScript 3 & Flex"
   s.email = "dominic @nospam@ devboy.org"
   s.executables = ["buildr-as3"]
