@@ -47,7 +47,7 @@ module Buildr
           end
 
           def swcs flexunit_version=DEFAULT_FLEXUNIT_VERSION, flexsdk_version=DEFAULT_FLEX_SDK_VERSION, type=:as3
-            raise "type has to be :as3 or :flex" unless [:flex,:as3].include? type
+            raise "type has to be :as3 or :flex" unless [:flex, :as3].include? type
             [
                 "com.adobe.flexunit:flexunit-cilistener:swc:#{flexsdk_version}:#{flexunit_version}",
                 "com.adobe.flexunit:flexunit-aircilistener:swc:#{flexsdk_version}:#{flexunit_version}",
@@ -107,7 +107,7 @@ module Buildr
                          :headless => options[:headless] || false,
                          :display => options[:display] || 99,
                          :port => options[:port] || 1024,
-                         :swf => task.project.get_as3_output(true)
+                         :swf => get_output_file(task.project)
 
             ant.taskdef :name=>'junitreport',
                         :classname=>'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
@@ -134,6 +134,11 @@ module Buildr
           end
           Dir.chdir project_dir
           tests
+        end
+
+        def get_output_file project
+          compile = project.test.compile
+          File.join(compile.target.to_s, compile.options[:output] || "#{project.name.split(":").last}.#{compile.packaging.to_s}")
         end
 
       end

@@ -103,7 +103,7 @@ module Buildr
       def package_as_airi(file_name)
         fail("Package types don't match! :swf vs. :#{compile.packaging.to_s}") unless compile.packaging == :swf
         AiriTask.define_task(file_name).tap do |swf|
-          swf.src_swf = get_as3_output
+          swf.src_swf = File.join(compile.target.to_s, compile.options[:output] || "#{project.name.split(":").last}.#{compile.packaging.to_s}")
           swf.target_air = file_name
           swf.flexsdk = compile.options[:flexsdk]
         end

@@ -24,14 +24,14 @@ require "buildr"
 
 class Buildr::Project
 
-  def get_as3_output( is_test = false )
-    compile_task = is_test ? test.compile : compile
-    target = compile_task.target
-    options = compile_task.options
-    return compile_task.options[:output] if compile_task.options.has_key? :output
-    return "#{target}/#{File.basename(options[:main].to_s, File.extname(options[:main].to_s))}.swf" if compile_task.packaging == :swf
-    return "#{target}/#{name.gsub(":", "-")}.swc" if compile_task.packaging == :swc
-    fail("Could not guess output file for #{name}")
-  end
+  #def get_as3_output( is_test = false )
+  #  compile_task = is_test ? test.compile : compile
+  #  target = compile_task.target
+  #  options = compile_task.options
+  #  return compile_task.options[:output] if compile_task.options.has_key? :output
+  #  return "#{target}/#{File.basename(options[:main].to_s, File.extname(options[:main].to_s))}.swf" if compile_task.packaging == :swf
+  #  return "#{target}/#{name.gsub(":", "-")}.swc" if compile_task.packaging == :swc
+  #  fail("Could not guess output file for #{name}")
+  #end
 
 end

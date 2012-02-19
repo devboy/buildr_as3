@@ -48,9 +48,9 @@ module Buildr
           version = DEFAULT_SCALA_VERSION
           Buildr.artifacts('org.scala-lang:scala-library:jar:' + version).
               map { |a|
-                a.install
-                a.to_s
-              }
+            a.install
+            a.to_s
+          }
         end
 
 
@@ -87,7 +87,7 @@ module Buildr
         include Extension
 
         def apparat_tdsi(options = {})
-          output = project.get_as3_output
+          output = get_output_file
           compile.options[:apparat].invoke
           cmd_args = []
           cmd_args << "apparat.tools.tdsi.TurboDieselSportInjection"
@@ -102,7 +102,7 @@ module Buildr
         end
 
         def apparat_reducer(options ={})
-          output = project.get_as3_output
+          output = get_output_file
           compile.options[:apparat].invoke
           cmd_args = []
           cmd_args << "apparat.tools.reducer.Reducer"
@@ -123,6 +123,10 @@ module Buildr
             cp = compile.options[:apparat].scala_dependencies + compile.options[:apparat].apparat_dependencies
             sh (['java', '-classpath', cp.join(":")] + args).join(" ")
           end
+        end
+
+        def get_output_file
+          File.join(compile.target.to_s, compile.options[:output] || "#{project.name.split(":").last}.#{compile.packaging.to_s}")
         end
 
       end

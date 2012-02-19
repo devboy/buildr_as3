@@ -39,7 +39,7 @@ module Buildr
         def compile(sources, target, dependencies) #:nodoc:
           check_options options, COMPILE_OPTIONS
           flex_sdk = options[:flexsdk].invoke
-          output = @project.get_as3_output( is_test(sources,target,dependencies) )
+          output = get_output_file(target)
           cmd_args = compiler_args(get_as3_dependencies(sources,target,dependencies), flex_sdk, output, sources)
           unless Buildr.application.options.dryrun
             trace(cmd_args.join(' '))
@@ -48,13 +48,13 @@ module Buildr
         end
 
         def needed?(sources, target, dependencies)
-          return true unless File.exist?(@project.get_as3_output(is_test(sources,target,dependencies)))
-          source_files = Dir.glob(sources.collect{|source| source = "#{source}/**/*"})
+          return true unless File.exist? get_output_file(target)
+          source_files = Dir.glob(sources.map{|source| "#{source}/**/*"})
           dep_files = dependencies.collect{ |dep|
             File.directory?(dep) ? Dir.glob("#{dep}/**/*") : dep
           }.flatten
           maxtime = (source_files + dep_files).collect{ |file| File.stat(file).mtime }.max || Time.at(0)
-          maxtime > File.stat(@project.get_as3_output(is_test(sources,target,dependencies))).mtime
+          maxtime > File.stat(get_output_file(target)).mtime
         end
 
         private
@@ -87,8 +87,12 @@ module Buildr
           args + Array(options[:args]) + Array(options[:flexsdk].default_options)
         end
 
+        def get_output_file target
+          File.join(target.to_s, options["output"] || "#{@project.name.split(":").last}.#{self.class.packaging.to_s}")
+        end
+
         def is_test( sources, target, dependencies )
-          sources==@project.test.compile.sources && dependencies==@project.test.compile.dependencies.collect{|dep|dep.to_s} && target==@project.test.compile.target.to_s
+          sources==@project.test.compile.sources && dependencies==@project.test.compile.dependencies.map(&:to_s) && target==@project.test.compile.target.to_s
         end
 
       end
