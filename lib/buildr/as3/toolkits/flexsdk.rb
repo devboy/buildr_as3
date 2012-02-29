@@ -151,20 +151,33 @@ module Buildr
 
         def configure(template, artifact)
           xml = Document.new(File.open(template))
+          
+          theme = xml.elements['/flex-config/compiler/theme/filename']
+          theme.text = "#{@home}/frameworks/#{theme.text}" if theme
+
+          xml.each_element('/flex-config/runtime-shared-library-path/path-element') { |p| 
+            p.text = "#{@home}/frameworks/#{p.text}"
+          }
+
+          xml.each_element('/flex-config/compiler/namespaces/namespace/manifest') { |p| 
+            p.text = "#{@home}/frameworks/#{p.text}"
+          }
+
+
           if @player
-            xml.elements['flex-config/target-player'].text = @player.version
-            xml.elements['flex-config/compiler/external-library-path/path-element'].text = @player.swc
+            xml.elements['/flex-config/target-player'].text = @player.version
+            xml.elements['/flex-config/compiler/external-library-path/path-element'].text = @player.swc
           end
 
           if @airsdk
-            air_only = false
+            is_air_config = false
             xml.each_element('/flex-config/compiler/library-path/path-element') { |p|
-              if p.text == 'libs/air'
-                p.text = "#{@airsdk.home}/libs/air"
-                air_only = true
-              end
-              xml.elements['flex-config/compiler/external-library-path/path-element'].text = "#{@airsdk.home}/libs/air/airglobal.swc" if air_only
+              is_air_config = true if p.text == 'libs/air'
+              target = is_air_config ? "#{@airsdk.home}/frameworks" : "#{@home}/frameworks"
+              p.text = "#{target}/#{p.text}"
             }
+
+            xml.elements['/flex-config/compiler/external-library-path/path-element'].text = "#{@airsdk.home}/libs/air/airglobal.swc" if is_air_config
           end
 
           FileUtils.mkdir_p File.dirname(artifact.to_s)
