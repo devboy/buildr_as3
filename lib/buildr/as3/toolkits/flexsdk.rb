@@ -165,6 +165,7 @@ module Buildr
 
 
           if @player
+            xml.elements['/flex-config/swf-version'].text = @player.swf_version unless @player.swf_version.nil?
             xml.elements['/flex-config/target-player'].text = @player.version
             xml.elements['/flex-config/compiler/external-library-path/path-element'].text = @player.swc
           end

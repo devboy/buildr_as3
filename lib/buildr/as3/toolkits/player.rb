@@ -25,11 +25,12 @@ module Buildr
     module Toolkits
       class Player
 
-        attr_reader :home, :version, :swc
+        attr_reader :home, :version, :swf_version, :swc
 
-        def initialize(version)
+        def initialize(version, swf_version=nil)
           @version = version
           if v = /^[0-9.]+/.match(@version) then @version = v[0] end
+          @swf_version = swf_version
           @spec = "com.adobe.flex:player:swc:#{version.gsub(/ /, '-')}"
           @playerglobal = Buildr.artifact(@spec)
           @home = File.dirname(@playerglobal.to_s)
