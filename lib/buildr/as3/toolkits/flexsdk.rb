@@ -173,12 +173,15 @@ module Buildr
           if @airsdk
             is_air_config = false
             xml.each_element('/flex-config/compiler/library-path/path-element') { |p|
-              is_air_config = true if p.text == 'libs/air'
-              target = is_air_config ? "#{@airsdk.home}/frameworks" : "#{@home}/frameworks"
-              p.text = "#{target}/#{p.text}"
+              if p.text == 'libs/air'
+                is_air_config = true 
+                p.text = "#{@airsdk.home}/frameworks/#{p.text}"
+              else
+                p.text = "#{@home}/frameworks/#{p.text}"
+              end
             }
 
-            xml.elements['/flex-config/compiler/external-library-path/path-element'].text = "#{@airsdk.home}/libs/air/airglobal.swc" if is_air_config
+            xml.elements['/flex-config/compiler/external-library-path/path-element'].text = "#{@airsdk.home}/frameworks/libs/air/airglobal.swc" if is_air_config
           end
 
           FileUtils.mkdir_p File.dirname(artifact.to_s)
