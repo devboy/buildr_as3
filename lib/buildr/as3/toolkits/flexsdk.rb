@@ -20,29 +20,42 @@
 # THE SOFTWARE.
 #
 
+require "fileutils"
+require "rexml/document"
+include REXML
+
 module Buildr
   module AS3
     module Toolkits
       class FlexSDK < Buildr::AS3::Toolkits::ZipToolkiteBase
 
+        SDK_OPTIONS = [:player, :airsdk]
+
         attr_reader :home, :mxmlc_jar, :compc_jar, :asdoc_jar, :fcsh_jar, :flex_config,
-                    :asdoc_templates, :default_options, :air_config, :bin, :adt_jar, :adl
+                    :asdoc_templates, :default_options, :air_config, :airmobile_config, :bin, :adt_jar, :adl
 
         attr_writer :flex_config, :air_config, :asdoc_templates
 
-        def initialize(version)
+        def initialize(version, options={})
           @version = version
           @default_options = []
           @spec = "com.adobe.flex:sdk:zip:#{@version}"
           @zip = Buildr.artifact(@spec)
           @zip_destination = File.join(File.dirname(@zip.to_s), "sdk-#{@version}")
+
+          @player = options[:player] if options[:player].instance_of?(Player)
+          @airsdk = options[:airsdk] if options[:airsdk].instance_of?(AirSDK)
+          
           generate_paths @zip_destination
           self
         end
 
         def invoke #:nodoc:
+          @player.invoke unless @player.nil?
+          @airsdk.invoke unless @airsdk.nil?
           @url ||= generate_url_from_version @version
           super
+          generate_configs
           self
         end
 
@@ -102,14 +115,77 @@ module Buildr
           @mxmlc_jar = "#{@home}/lib/mxmlc.jar"
           @compc_jar = "#{@home}/lib/compc.jar"
           @asdoc_jar = "#{@home}/lib/asdoc.jar"
-          @adt_jar = "#{@home}/lib/adt.jar"
-          @adl = Buildr::Util.win_os? ? "#{@home}/bin/adl.exe" : "#{@home}/bin/adl"
           @asdoc_templates = "#{@home}/asdoc/templates"
           @fcsh_jar = "#{@home}/lib/fcsh.jar"
-          @flex_config = "#{@home}/frameworks/flex-config.xml"
-          @air_config = "#{@home}/frameworks/air-config.xml"
           @bin = "#{@home}/bin"
+
+          air_home = @airsdk ? @airsdk.home : @home
+          @adt_jar = "#{air_home}/lib/adt.jar"
+          @adl = Buildr::Util.win_os? ? "#{air_home}/bin/adl.exe" : "#{air_home}/bin/adl"
           true
+        end
+
+        def generate_configs
+          config_version = @version
+          config_version += ".#{@player.version}" if @player
+          config_version += ".#{@airsdk.version}" if @airsdk
+
+          if @player || @airsdk
+            flex_config = Buildr.artifact("com.adobe.flex:config:xml:flex:#{@config_version}")
+            configure("#{@home}/frameworks/flex-config.xml", flex_config)
+            @flex_config = flex_config.to_s
+            
+            air_config = Buildr.artifact("com.adobe.flex:config:xml:air:#{@config_version}")
+            configure("#{@home}/frameworks/air-config.xml", air_config)
+            @air_config = air_config.to_s
+
+            airmobile_config = Buildr.artifact("com.adobe.flex:config:xml:airmobile:#{@config_version}")
+            configure("#{@home}/frameworks/airmobile-config.xml", airmobile_config)
+            @airmobile_config = airmobile_config.to_s
+          else
+            @flex_config = "#{@home}/frameworks/flex-config.xml"
+            @air_config = "#{@home}/frameworks/air-config.xml"
+            @airmobile_config = "#{@home}/frameworks/airmobile-config.xml"
+          end
+        end
+
+        def configure(template, artifact)
+          xml = Document.new(File.open(template))
+          
+          theme = xml.elements['/flex-config/compiler/theme/filename']
+          theme.text = "#{@home}/frameworks/#{theme.text}" if theme
+
+          xml.each_element('/flex-config/runtime-shared-library-path/path-element') { |p| 
+            p.text = "#{@home}/frameworks/#{p.text}"
+          }
+
+          xml.each_element('/flex-config/compiler/namespaces/namespace/manifest') { |p| 
+            p.text = "#{@home}/frameworks/#{p.text}"
+          }
+
+
+          if @player
+            xml.elements['/flex-config/swf-version'].text = @player.swf_version unless @player.swf_version.nil?
+            xml.elements['/flex-config/target-player'].text = @player.version
+            xml.elements['/flex-config/compiler/external-library-path/path-element'].text = @player.swc
+          end
+
+          if @airsdk
+            is_air_config = false
+            xml.each_element('/flex-config/compiler/library-path/path-element') { |p|
+              if p.text == 'libs/air'
+                is_air_config = true 
+                p.text = "#{@airsdk.home}/frameworks/#{p.text}"
+              else
+                p.text = "#{@home}/frameworks/#{p.text}"
+              end
+            }
+
+            xml.elements['/flex-config/compiler/external-library-path/path-element'].text = "#{@airsdk.home}/frameworks/libs/air/airglobal.swc" if is_air_config
+          end
+
+          FileUtils.mkdir_p File.dirname(artifact.to_s)
+          File.open(artifact.to_s, 'w') {|f| f.write(xml) }
         end
       end
     end

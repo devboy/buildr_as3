@@ -60,24 +60,23 @@ module Buildr
           Dir.chdir project_dir
         end
 
-        def unzip_toolkit(zip,destination)
+        def system_untar_toolkit(zip, destination)
+          project_dir = Dir.getwd
+          Dir.chdir File.dirname(zip.to_s)
+          system("mkdir #{destination}; tar -xvjf #{zip.to_s} -C #{destination}")
+          Dir.chdir project_dir
+        end
+
+        def unzip_toolkit(zip, destination)
           unless File.exists? destination
             puts "Unzipping Archive, this might take a while."
-            if Buildr::Util.win_os?
-              puts "Please make sure unzip is installed and in your PATH variable!"
-              system_unzip_toolkit zip, destination
+            if (@url.to_s =~ /\.tar\.bz2$/ || @url.to_s =~ /\.tbz2$/)
+              system_untar_toolkit(zip, destination)
             else
-              begin
-#                Buildr.unzip(destination.to_s=>zip.to_s).target.invoke
-#              rescue TypeError
-#                puts "RubyZip extract failed, trying system unzip now."
-                puts "Please make sure unzip is installed and in your PATH variable!"
-                system_unzip_toolkit zip, destination
-              end
+              system_unzip_toolkit(zip, destination)
             end
           end
         end
-
       end
     end
   end
