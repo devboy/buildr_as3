@@ -21,8 +21,10 @@
 #
 
 require "#{File.dirname(__FILE__)}/toolkits/base"
-require "#{File.dirname(__FILE__)}/toolkits/flexsdk"
 require "#{File.dirname(__FILE__)}/toolkits/apparat"
 require "#{File.dirname(__FILE__)}/toolkits/alchemy"
+require "#{File.dirname(__FILE__)}/toolkits/flexsdk"
+require "#{File.dirname(__FILE__)}/toolkits/airsdk"
+require "#{File.dirname(__FILE__)}/toolkits/player"
 
 include Buildr::AS3::Toolkits
