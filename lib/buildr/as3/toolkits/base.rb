@@ -54,6 +54,8 @@ module Buildr
         protected
 
         def system_unzip_toolkit(zip, destination)
+          puts "Please make sure unzip is installed and in your PATH variable!"
+
           project_dir = Dir.getwd
           Dir.chdir File.dirname(zip.to_s)
           system("unzip #{File.basename(zip.to_s).to_s} -d #{File.basename(destination).to_s}")
@@ -61,6 +63,8 @@ module Buildr
         end
 
         def system_untar_toolkit(zip, destination)
+          puts "Attempting to extract a non-windows archive?" if Buildr::Util.win_os?
+          
           project_dir = Dir.getwd
           Dir.chdir File.dirname(zip.to_s)
           system("mkdir #{destination}; tar -xvjf #{zip.to_s} -C #{destination}")
@@ -70,11 +74,14 @@ module Buildr
         def unzip_toolkit(zip, destination)
           unless File.exists? destination
             puts "Unzipping Archive, this might take a while."
+
+            # HACK: Had to check the URL to determine the file type here...
             if (@url.to_s =~ /\.tar\.bz2$/ || @url.to_s =~ /\.tbz2$/)
               system_untar_toolkit(zip, destination)
             else
               system_unzip_toolkit(zip, destination)
             end
+            
           end
         end
       end

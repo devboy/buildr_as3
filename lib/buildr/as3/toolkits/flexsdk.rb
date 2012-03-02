@@ -55,7 +55,10 @@ module Buildr
           @airsdk.invoke unless @airsdk.nil?
           @url ||= generate_url_from_version @version
           super
+
+          # Configuration files must be generated after the SDKs are installed
           generate_configs
+
           self
         end
 
@@ -131,6 +134,10 @@ module Buildr
           config_version += ".#{@airsdk.version}" if @airsdk
 
           if @player || @airsdk
+            # Generate config files
+            # TODO: Pretty sure these files are being generated everytime and that the artificate syntax is incorrect
+            #       Additionally, I tried to use the .content method of the artifact, but it generated errors
+
             flex_config = Buildr.artifact("com.adobe.flex:config:xml:flex:#{@config_version}")
             configure("#{@home}/frameworks/flex-config.xml", flex_config)
             @flex_config = flex_config.to_s
@@ -152,38 +159,44 @@ module Buildr
         def configure(template, artifact)
           xml = Document.new(File.open(template))
           
+          # Expand theme into a full path
           theme = xml.elements['/flex-config/compiler/theme/filename']
           theme.text = "#{@home}/frameworks/#{theme.text}" if theme
 
+          # Expand RSLs into full path
           xml.each_element('/flex-config/runtime-shared-library-path/path-element') { |p| 
             p.text = "#{@home}/frameworks/#{p.text}"
           }
 
+          # Expand frameworks into full path
           xml.each_element('/flex-config/compiler/namespaces/namespace/manifest') { |p| 
             p.text = "#{@home}/frameworks/#{p.text}"
           }
 
-
           if @player
+            # Overwrite the playrglobal.swc and update the default version and target-player
             xml.elements['/flex-config/swf-version'].text = @player.swf_version unless @player.swf_version.nil?
             xml.elements['/flex-config/target-player'].text = @player.version
             xml.elements['/flex-config/compiler/external-library-path/path-element'].text = @player.swc
           end
 
-          if @airsdk
-            is_air_config = false
-            xml.each_element('/flex-config/compiler/library-path/path-element') { |p|
-              if p.text == 'libs/air'
-                is_air_config = true 
-                p.text = "#{@airsdk.home}/frameworks/#{p.text}"
-              else
-                p.text = "#{@home}/frameworks/#{p.text}"
-              end
-            }
+          # Expand the library paths and determine if this config file is an air config file
+          is_air_config = false
+          air_home = @airsdk ? @airsdk.home : @home
+          xml.each_element('/flex-config/compiler/library-path/path-element') { |p|
+            if p.text == 'libs/air'
+              is_air_config = true 
+              p.text = "#{air_home}/frameworks/#{p.text}"
+            else
+              p.text = "#{@home}/frameworks/#{p.text}"
+            end
+          }
 
-            xml.elements['/flex-config/compiler/external-library-path/path-element'].text = "#{@airsdk.home}/frameworks/libs/air/airglobal.swc" if is_air_config
-          end
+          # Overwrite the playerglobal.swc w/ airglobal.swc if this is an adobe air config file
+          xml.elements['/flex-config/compiler/external-library-path/path-element'].text = "#{air_home}/frameworks/libs/air/airglobal.swc" if is_air_config
 
+          # Write out the file
+          # TODO: This would not be needed if I could figure how to use Artifict::content
           FileUtils.mkdir_p File.dirname(artifact.to_s)
           File.open(artifact.to_s, 'w') {|f| f.write(xml) }
         end
