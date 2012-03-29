@@ -20,6 +20,8 @@
 # THE SOFTWARE.
 #
 
+include Archive::Tar
+
 module Buildr
   module AS3
     module Toolkits
@@ -33,7 +35,7 @@ module Buildr
             Buildr::download(Buildr::artifact(@spec) => @url).invoke
           end unless File.exists? @zip.to_s
 
-          unzip_toolkit(@zip,@zip_destination)
+          unarchive(@zip,@zip_destination).invoke
 
           self
         end
@@ -42,9 +44,9 @@ module Buildr
         #   from(url) => self
         #
         # * You can pass a url where the ToolkitArtifact should be downloaded from as a string:
-        # FLEX_SDK.from("http://domain.tld/flex_sdk.zip")
+        # from("http://domain.tld/toolkit.zip")
         # * You can pass :maven as a parameter to download it from a maven repository:
-        # FLEX_SDK.from(:maven)
+        # from(:maven)
         # * If you don't call this function at all, buildr-as3 will try and resolve a url on automatically
         def from(url)
           @url = url
@@ -53,37 +55,16 @@ module Buildr
 
         protected
 
-        def system_unzip_toolkit(zip, destination)
-          puts "Please make sure unzip is installed and in your PATH variable!"
-
-          project_dir = Dir.getwd
-          Dir.chdir File.dirname(zip.to_s)
-          system("unzip #{File.basename(zip.to_s).to_s} -d #{File.basename(destination).to_s}")
-          Dir.chdir project_dir
-        end
-
-        def system_untar_toolkit(zip, destination)
-          puts "Attempting to extract a non-windows archive?" if Buildr::Util.win_os?
-          
-          project_dir = Dir.getwd
-          Dir.chdir File.dirname(zip.to_s)
-          system("mkdir #{destination}; tar -xvjf #{zip.to_s} -C #{destination}")
-          Dir.chdir project_dir
-        end
-
-        def unzip_toolkit(zip, destination)
-          unless File.exists? destination
-            puts "Unzipping Archive, this might take a while."
-
-            # HACK: Had to check the URL to determine the file type here...
-            if (@url.to_s =~ /\.tar\.bz2$/ || @url.to_s =~ /\.tbz2$/)
-              system_untar_toolkit(zip, destination)
-            else
-              system_unzip_toolkit(zip, destination)
+        def unarchive(archive,destination)
+          if @url.to_s =~ /\.tar\.bz2$/ || @url.to_s =~ /\.tbz2$/
+            file destination => archive do
+              Minitar.unpack(archive, destination)
             end
-            
+          else
+            Buildr.unzip( destination => archive ).target
           end
         end
+
       end
     end
   end
