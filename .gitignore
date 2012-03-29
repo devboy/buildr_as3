@@ -1,6 +1,6 @@
 # intellij files
 .idea
-buildr_as3.iml
+buildr-as3.iml
 
 .DS_Store
 
@@ -37,7 +37,7 @@ Gemfile.lock
 #
 # For MacOS:
 #
-#.DS_Store
+ .DS_Store
 #
 # For TextMate
 #*.tmproj
