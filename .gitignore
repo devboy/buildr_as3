@@ -1,6 +1,6 @@
 # intellij files
 .idea
-buildr-as3.iml
+*.iml
 
 .DS_Store
 
