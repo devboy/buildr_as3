@@ -34,8 +34,15 @@ module Buildr
           else
             Buildr::download(Buildr::artifact(@spec) => @url).invoke
           end unless File.exists? @zip.to_s
-
-          unarchive(@zip,@zip_destination).invoke
+          begin
+            unarchive(@zip,@zip_destination).invoke
+          rescue Exception => e
+            if Buildr::Util.win_os? and e.message.include? "symlink() function is unimplemented"
+              warn "Disregarding symlink() issue on Windows"
+            else
+              raise e
+            end
+          end
 
           self
         end
