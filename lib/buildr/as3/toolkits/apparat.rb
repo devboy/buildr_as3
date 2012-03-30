@@ -33,7 +33,7 @@ module Buildr
           @version = version
           @spec = "com.googlecode:apparat-bin:zip:#{@version}"
           @zip = Buildr.artifact(@spec)
-          @zip_destination = File.join(File.dirname(@zip.to_s), "apparat-#{@version}", "apparat-#{@version}")
+          @zip_destination = File.join(File.dirname(@zip.to_s),"apparat")
           generate_paths @zip_destination, @version
         end
 
@@ -65,7 +65,7 @@ module Buildr
         end
 
         def generate_paths(home_dir, version)
-          @home = home_dir
+          @home = "#{home_dir}/apparat-#{version}"
           bat_ext = Buildr::Util.win_os? ? "" : ""
           @apparat = "#{@home}/apparat#{bat_ext}"
           @asmifier = "#{@home}/asmifier#{bat_ext}"
@@ -91,8 +91,8 @@ module Buildr
           compile.options[:apparat].invoke
           cmd_args = []
           cmd_args << "apparat.tools.tdsi.TurboDieselSportInjection"
-          cmd_args << "-i #{output}"
-          cmd_args << "-o #{output}"
+          cmd_args << "-i" << "#{output}"
+          cmd_args << "-o" << "#{output}"
           reserved = []
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
@@ -106,8 +106,8 @@ module Buildr
           compile.options[:apparat].invoke
           cmd_args = []
           cmd_args << "apparat.tools.reducer.Reducer"
-          cmd_args << "-i #{output}"
-          cmd_args << "-o #{output}"
+          cmd_args << "-i" << "#{output}"
+          cmd_args << "-o" << "#{output}"
           reserved = []
           options.to_hash.reject { |key, value| reserved.include?(key) }.
               each do |key, value|
@@ -121,7 +121,12 @@ module Buildr
         def call_system(args)
           unless Buildr.application.options.dryrun
             cp = compile.options[:apparat].scala_dependencies + compile.options[:apparat].apparat_dependencies
-            sh (['java', '-classpath', cp.join(":")] + args).join(" ")
+            sep = Buildr::Util.win_os? ? ";" : ":"
+            cmd_args = ['-classpath', cp.join(sep)] + args
+            unless Buildr.application.options.dryrun
+              trace(cmd_args.join(' '))
+              Java::Commands.java cmd_args
+            end
           end
         end
 
